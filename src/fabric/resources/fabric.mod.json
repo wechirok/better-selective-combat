@@ -8,6 +8,7 @@
     "wechirok"
   ],
   "license": "GPL-3.0-only",
+  "icon": "icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [

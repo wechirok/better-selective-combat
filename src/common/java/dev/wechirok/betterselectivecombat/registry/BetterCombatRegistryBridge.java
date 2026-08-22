@@ -4,8 +4,10 @@ import dev.wechirok.betterselectivecombat.BetterSelectiveCombat;
 import dev.wechirok.betterselectivecombat.mixin.WeaponRegistryInvoker;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 public final class BetterCombatRegistryBridge {
     private static final Object LOCK = new Object();
@@ -40,6 +42,17 @@ public final class BetterCombatRegistryBridge {
             apply(BetterSelectiveCombat.selections().snapshot());
             WeaponRegistryInvoker.betterSelectiveCombat$encodeRegistry();
             return true;
+        }
+    }
+
+    public static List<String> availableWeaponIds() {
+        synchronized (LOCK) {
+            TreeSet<String> ids = new TreeSet<>();
+            if (registrations != null) {
+                registrations.keySet().forEach(key -> ids.add(key.toString()));
+            }
+            ids.addAll(registrationBackup.keySet());
+            return List.copyOf(ids);
         }
     }
 

@@ -20,6 +20,5 @@
   "bsc.list.header": "비활성화된 무기, %s/%s 페이지:",
   "bsc.list.invalid_page": "%s 페이지가 존재하지 않습니다. 마지막 페이지: %s.",
   "bsc.reload.success": "설정을 다시 불러왔습니다.",
-  "bsc.reload.failed": "설정을 읽을 수 없습니다. 현재 선택이 유지되었습니다.",
-  "bsc.reconnect": "접속 중인 플레이어는 Better Combat 레지스트리에 변경 사항을 반영하려면 다시 접속해야 합니다."
+  "bsc.reload.failed": "설정을 읽을 수 없습니다. 현재 선택이 유지되었습니다."
 }

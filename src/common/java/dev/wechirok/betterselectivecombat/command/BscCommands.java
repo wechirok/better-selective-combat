@@ -1,19 +1,24 @@
 package dev.wechirok.betterselectivecombat.command;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.suggestion.Suggestions;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import dev.wechirok.betterselectivecombat.BetterSelectiveCombat;
 import dev.wechirok.betterselectivecombat.lang.Translations;
+import dev.wechirok.betterselectivecombat.registry.BetterCombatRegistryBridge;
 import dev.wechirok.betterselectivecombat.selection.WeaponId;
 import dev.wechirok.betterselectivecombat.selection.WeaponSelectionService;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public final class BscCommands {
     private static final int PAGE_SIZE = 8;
@@ -22,18 +27,21 @@ public final class BscCommands {
     }
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-        dispatcher.register(Commands.literal("bsc")
+        var root = dispatcher.register(Commands.literal("bsc")
                 .executes(BscCommands::showVersion)
                 .then(Commands.literal("help")
                         .executes(BscCommands::showHelp))
                 .then(Commands.literal("disable")
-                        .then(Commands.argument("weapon_id", StringArgumentType.word())
+                        .then(Commands.argument("weapon_id", StringArgumentType.greedyString())
+                                .suggests(BscCommands::suggestWeapons)
                                 .executes(BscCommands::disable)))
                 .then(Commands.literal("enable")
-                        .then(Commands.argument("weapon_id", StringArgumentType.word())
+                        .then(Commands.argument("weapon_id", StringArgumentType.greedyString())
+                                .suggests(BscCommands::suggestDisabledWeapons)
                                 .executes(BscCommands::enable)))
                 .then(Commands.literal("status")
-                        .then(Commands.argument("weapon_id", StringArgumentType.word())
+                        .then(Commands.argument("weapon_id", StringArgumentType.greedyString())
+                                .suggests(BscCommands::suggestWeapons)
                                 .executes(BscCommands::status)))
                 .then(Commands.literal("list")
                         .executes(context -> list(context, 1))
@@ -41,6 +49,15 @@ public final class BscCommands {
                                 .executes(context -> list(context, IntegerArgumentType.getInteger(context, "page")))))
                 .then(Commands.literal("reload")
                         .executes(BscCommands::reload)));
+        dispatcher.register(Commands.literal("betterselectivecombat").redirect(root));
+    }
+
+    private static CompletableFuture<Suggestions> suggestWeapons(CommandContext<CommandSourceStack> context, SuggestionsBuilder builder) {
+        return SharedSuggestionProvider.suggest(BetterCombatRegistryBridge.availableWeaponIds(), builder);
+    }
+
+    private static CompletableFuture<Suggestions> suggestDisabledWeapons(CommandContext<CommandSourceStack> context, SuggestionsBuilder builder) {
+        return SharedSuggestionProvider.suggest(BetterSelectiveCombat.selections().sortedSnapshot(), builder);
     }
 
     private static int showVersion(CommandContext<CommandSourceStack> context) {
@@ -131,13 +148,11 @@ public final class BscCommands {
             return failure(source, text(source, "bsc.reload.failed"));
         }
         success(source, text(source, "bsc.reload.success"));
-        success(source, text(source, "bsc.reconnect"));
         return 1;
     }
 
     private static int changed(CommandSourceStack source, String key, String weaponId) {
         success(source, text(source, key, weaponId));
-        success(source, text(source, "bsc.reconnect"));
         return 1;
     }
 

@@ -20,6 +20,5 @@
   "bsc.list.header": "Deaktivierte Waffen, Seite %s von %s:",
   "bsc.list.invalid_page": "Seite %s existiert nicht. Letzte Seite: %s.",
   "bsc.reload.success": "Die Konfiguration wurde neu geladen.",
-  "bsc.reload.failed": "Die Konfiguration konnte nicht gelesen werden. Die aktuelle Auswahl wurde beibehalten.",
-  "bsc.reconnect": "Verbundene Spieler müssen sich neu verbinden, damit diese Änderung in ihrer Better-Combat-Registry erscheint."
+  "bsc.reload.failed": "Die Konfiguration konnte nicht gelesen werden. Die aktuelle Auswahl wurde beibehalten."
 }
