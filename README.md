@@ -1,6 +1,10 @@
 ![Better Selective Combat](./logo.png)
 
-Lets you choose which weapons should bypass Better Combat and use their original combat behavior instead.
+<div align="center">
+
+  Lets you choose which weapons should bypass Better Combat and use their original combat behavior instead.
+
+</div>
 
 ## Commands
 
