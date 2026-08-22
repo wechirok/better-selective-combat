@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'dev.wechirok.betterselectivecombat'
-version = '1.1.0'
+version = '1.0.0'
 
 def targets = [
         'mc1211-fabric'   : [loader: 'fabric', minecraft: '1.21.1', minecraftRange: '=1.21.1', java: 21, fabricApi: '0.116.15+1.21.1', neoForge: null, betterCombat: '2.4.0+1.21.1', betterCombatRange: '>=2.4.0 <3.0.0'],
