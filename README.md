@@ -6,13 +6,13 @@ Lets you choose which weapons should bypass Better Combat and use their original
 
 | Command                    | Description                         |
 | -------------------------- | ----------------------------------- |
-| `/bsc`                     | Show the mod name and version       |
+| `/bsc`                     | Show the mod version                |
 | `/bsc help`                | Show available commands             |
 | `/bsc disable <weapon_id>` | Disable a weapon                    |
 | `/bsc enable <weapon_id>`  | Enable a previously disabled weapon |
 | `/bsc status <weapon_id>`  | Show whether a weapon is disabled   |
 | `/bsc list [page]`         | List disabled weapons               |
-| `/bsc reload`              | Reload the configuration file       |
+| `/bsc reload`              | Reload the config file              |
 
 `disable`, `enable`, and `reload` require `better_selective_combat.manage` through [LuckPerms](https://github.com/LuckPerms/LuckPerms) or op permission.
 
