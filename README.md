@@ -53,4 +53,4 @@ Players who are already connected must reconnect for changes to take effect on t
 
 ## License
 
-Licensed under the [GNU General Public License v3.0](LICENSE).
+[GNU General Public License v3.0](LICENSE)
