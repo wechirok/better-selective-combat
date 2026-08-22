@@ -1,0 +1,303 @@
+name: publish
+
+on:
+  release:
+    types:
+      - published
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: GitHub release tag
+        required: true
+        type: string
+      changelog:
+        description: Release changelog
+        required: true
+        type: string
+      release_type:
+        description: Release type
+        required: true
+        default: release
+        type: choice
+        options:
+          - release
+          - beta
+          - alpha
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-${{ github.event.release.tag_name || inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      release_type: ${{ steps.release.outputs.release_type }}
+      version: ${{ steps.release.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.release.tag_name || inputs.tag }}
+      - id: release
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_RELEASE_TYPE: ${{ inputs.release_type }}
+          IS_PRERELEASE: ${{ github.event.release.prerelease }}
+          TAG: ${{ github.event.release.tag_name || inputs.tag }}
+        run: |
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.]+)?$ ]]; then
+            echo "Invalid release tag: $TAG" >&2
+            exit 1
+          fi
+          version="${TAG#v}"
+          if [[ "$EVENT_NAME" == "release" ]]; then
+            if [[ "$IS_PRERELEASE" == "true" ]]; then
+              release_type="beta"
+            else
+              release_type="release"
+            fi
+          else
+            release_type="$INPUT_RELEASE_TYPE"
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "release_type=$release_type" >> "$GITHUB_OUTPUT"
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        with:
+          distribution: temurin
+          java-version: 25
+      - uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb
+      - run: ./gradlew buildAll --no-daemon
+      - shell: bash
+        run: |
+          mkdir -p build/release
+          while IFS= read -r -d '' file; do
+            cp "$file" build/release/
+          done < <(find versions -path '*/build/libs/*.jar' -type f ! -name '*-sources.jar' -print0)
+          count=$(find build/release -maxdepth 1 -type f -name '*.jar' | wc -l)
+          if [[ "$count" -ne 14 ]]; then
+            echo "Expected 14 release files, found $count" >&2
+            exit 1
+          fi
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: release-jars
+          path: build/release/*.jar
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 0
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        include:
+          - target: fabric 1.21.1
+            loader: fabric
+            loader_name: Fabric
+            game_name: 1.21.1
+            version_key: 1.21.1
+            game_versions: 1.21.1
+            java: 21
+            file: better-selective-combat-fabric-mc1.21.1
+            dependencies: |
+              bettercombat(required){modrinth:better-combat}{curseforge:639842}
+              fabric-api(required){modrinth:fabric-api}{curseforge:306612}
+              luckperms(optional){modrinth:luckperms}{curseforge:431733}
+          - target: neoforge 1.21.1
+            loader: neoforge
+            loader_name: NeoForge
+            game_name: 1.21.1
+            version_key: 1.21.1
+            game_versions: 1.21.1
+            java: 21
+            file: better-selective-combat-neoforge-mc1.21.1
+            dependencies: |
+              bettercombat(required){modrinth:better-combat}{curseforge:639842}
+              luckperms(optional){modrinth:luckperms}{curseforge:431733}
+          - target: fabric 1.21.4
+            loader: fabric
+            loader_name: Fabric
+            game_name: 1.21.4
+            version_key: 1.21.4
+            game_versions: 1.21.4
+            java: 21
+            file: better-selective-combat-fabric-mc1.21.4
+            dependencies: |
+              bettercombat(required){modrinth:better-combat}{curseforge:639842}
+              fabric-api(required){modrinth:fabric-api}{curseforge:306612}
+              luckperms(optional){modrinth:luckperms}{curseforge:431733}
+          - target: neoforge 1.21.4
+            loader: neoforge
+            loader_name: NeoForge
+            game_name: 1.21.4
+            version_key: 1.21.4
+            game_versions: 1.21.4
+            java: 21
+            file: better-selective-combat-neoforge-mc1.21.4
+            dependencies: |
+              bettercombat(required){modrinth:better-combat}{curseforge:639842}
+              luckperms(optional){modrinth:luckperms}{curseforge:431733}
+          - target: fabric 1.21.6 to 1.21.8
+            loader: fabric
+            loader_name: Fabric
+            game_name: 1.21.6 to 1.21.8
+            version_key: 1.21.6-1.21.8
+            game_versions: |
+              1.21.6
+              1.21.7
+              1.21.8
+            java: 21
+            file: better-selective-combat-fabric-mc1.21.8
+            dependencies: |
+              bettercombat(required){modrinth:better-combat}{curseforge:639842}
+              fabric-api(required){modrinth:fabric-api}{curseforge:306612}
+              luckperms(optional){modrinth:luckperms}{curseforge:431733}
+          - target: neoforge 1.21.6 to 1.21.8
+            loader: neoforge
+            loader_name: NeoForge
+            game_name: 1.21.6 to 1.21.8
+            version_key: 1.21.6-1.21.8
+            game_versions: |
+              1.21.6
+              1.21.7
+              1.21.8
+            java: 21
+            file: better-selective-combat-neoforge-mc1.21.8
+            dependencies: |
+              bettercombat(required){modrinth:better-combat}{curseforge:639842}
+              luckperms(optional){modrinth:luckperms}{curseforge:431733}
+          - target: fabric 1.21.9 to 1.21.10
+            loader: fabric
+            loader_name: Fabric
+            game_name: 1.21.9 to 1.21.10
+            version_key: 1.21.9-1.21.10
+            game_versions: |
+              1.21.9
+              1.21.10
+            java: 21
+            file: better-selective-combat-fabric-mc1.21.10
+            dependencies: |
+              bettercombat(required){modrinth:better-combat}{curseforge:639842}
+              fabric-api(required){modrinth:fabric-api}{curseforge:306612}
+              luckperms(optional){modrinth:luckperms}{curseforge:431733}
+          - target: neoforge 1.21.9 to 1.21.10
+            loader: neoforge
+            loader_name: NeoForge
+            game_name: 1.21.9 to 1.21.10
+            version_key: 1.21.9-1.21.10
+            game_versions: |
+              1.21.9
+              1.21.10
+            java: 21
+            file: better-selective-combat-neoforge-mc1.21.10
+            dependencies: |
+              bettercombat(required){modrinth:better-combat}{curseforge:639842}
+              luckperms(optional){modrinth:luckperms}{curseforge:431733}
+          - target: fabric 1.21.11
+            loader: fabric
+            loader_name: Fabric
+            game_name: 1.21.11
+            version_key: 1.21.11
+            game_versions: 1.21.11
+            java: 21
+            file: better-selective-combat-fabric-mc1.21.11
+            dependencies: |
+              bettercombat(required){modrinth:better-combat}{curseforge:639842}
+              fabric-api(required){modrinth:fabric-api}{curseforge:306612}
+              luckperms(optional){modrinth:luckperms}{curseforge:431733}
+          - target: neoforge 1.21.11
+            loader: neoforge
+            loader_name: NeoForge
+            game_name: 1.21.11
+            version_key: 1.21.11
+            game_versions: 1.21.11
+            java: 21
+            file: better-selective-combat-neoforge-mc1.21.11
+            dependencies: |
+              bettercombat(required){modrinth:better-combat}{curseforge:639842}
+              luckperms(optional){modrinth:luckperms}{curseforge:431733}
+          - target: fabric 26.1 to 26.1.2
+            loader: fabric
+            loader_name: Fabric
+            game_name: 26.1 to 26.1.2
+            version_key: 26.1-26.1.2
+            game_versions: |
+              26.1
+              26.1.1
+              26.1.2
+            java: 25
+            file: better-selective-combat-fabric-mc26.1.2
+            dependencies: |
+              bettercombat(required){modrinth:better-combat}{curseforge:639842}
+              fabric-api(required){modrinth:fabric-api}{curseforge:306612}
+              luckperms(optional){modrinth:luckperms}{curseforge:431733}
+          - target: neoforge 26.1 to 26.1.2
+            loader: neoforge
+            loader_name: NeoForge
+            game_name: 26.1 to 26.1.2
+            version_key: 26.1-26.1.2
+            game_versions: |
+              26.1
+              26.1.1
+              26.1.2
+            java: 25
+            file: better-selective-combat-neoforge-mc26.1.2
+            dependencies: |
+              bettercombat(required){modrinth:better-combat}{curseforge:639842}
+              luckperms(optional){modrinth:luckperms}{curseforge:431733}
+          - target: fabric 26.2
+            loader: fabric
+            loader_name: Fabric
+            game_name: 26.2
+            version_key: 26.2
+            game_versions: 26.2
+            java: 25
+            file: better-selective-combat-fabric-mc26.2
+            dependencies: |
+              bettercombat(required){modrinth:better-combat}{curseforge:639842}
+              fabric-api(required){modrinth:fabric-api}{curseforge:306612}
+              luckperms(optional){modrinth:luckperms}{curseforge:431733}
+          - target: neoforge 26.2
+            loader: neoforge
+            loader_name: NeoForge
+            game_name: 26.2
+            version_key: 26.2
+            game_versions: 26.2
+            java: 25
+            file: better-selective-combat-neoforge-mc26.2
+            dependencies: |
+              bettercombat(required){modrinth:better-combat}{curseforge:639842}
+              luckperms(optional){modrinth:luckperms}{curseforge:431733}
+    name: publish ${{ matrix.target }}
+    steps:
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: release-jars
+          path: artifacts
+      - uses: Kira-NT/mc-publish@52307b03863581dec6b652b83e597aec02ebb075
+        with:
+          modrinth-id: better-selective-combat
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          curseforge-id: 1664386
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          files: artifacts/${{ matrix.file }}-${{ needs.build.outputs.version }}.jar
+          name: Better Selective Combat ${{ needs.build.outputs.version }} for Minecraft ${{ matrix.game_name }} ${{ matrix.loader_name }}
+          version: ${{ needs.build.outputs.version }}+${{ matrix.loader }}.${{ matrix.version_key }}
+          version-type: ${{ needs.build.outputs.release_type }}
+          changelog: ${{ github.event.release.body || inputs.changelog }}
+          loaders: ${{ matrix.loader }}
+          game-versions: ${{ matrix.game_versions }}
+          game-version-filter: none
+          environment: client? | server?
+          dependencies: ${{ matrix.dependencies }}
+          java: ${{ matrix.java }}
+          retry-attempts: 3
+          retry-delay: 10000
+          fail-mode: fail
