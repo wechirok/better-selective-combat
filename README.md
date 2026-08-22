@@ -36,7 +36,7 @@ Example:
 {
   "disabled_weapons": [
     "minecraft:diamond_sword",
-    "examplemod:greatsword"
+    "examplemod:reallysuperdoopergreatsword"
   ]
 }
 ```
