@@ -20,6 +20,5 @@
   "bsc.list.header": "Disabled weapons, page %s of %s:",
   "bsc.list.invalid_page": "Page %s does not exist. Last page: %s.",
   "bsc.reload.success": "The configuration has been reloaded.",
-  "bsc.reload.failed": "The configuration could not be read. The current selection was preserved.",
-  "bsc.reconnect": "Connected players must reconnect before their Better Combat registry reflects this change."
+  "bsc.reload.failed": "The configuration could not be read. The current selection was preserved."
 }

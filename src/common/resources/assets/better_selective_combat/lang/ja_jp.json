@@ -20,6 +20,5 @@
   "bsc.list.header": "無効な武器 %s/%sページ:",
   "bsc.list.invalid_page": "%sページは存在しません。最終ページ: %s。",
   "bsc.reload.success": "設定を再読み込みしました。",
-  "bsc.reload.failed": "設定を読み込めませんでした。現在の選択は維持されました。",
-  "bsc.reconnect": "接続中のプレイヤーは、この変更をBetter Combatのレジストリに反映するため再接続する必要があります。"
+  "bsc.reload.failed": "設定を読み込めませんでした。現在の選択は維持されました。"
 }

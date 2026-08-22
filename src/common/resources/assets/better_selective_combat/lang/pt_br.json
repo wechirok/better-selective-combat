@@ -20,6 +20,5 @@
   "bsc.list.header": "Armas desativadas, página %s de %s:",
   "bsc.list.invalid_page": "A página %s não existe. Última página: %s.",
   "bsc.reload.success": "A configuração foi recarregada.",
-  "bsc.reload.failed": "Não foi possível ler a configuração. A seleção atual foi preservada.",
-  "bsc.reconnect": "Os jogadores conectados precisam entrar novamente para que o registro do Better Combat reflita esta alteração."
+  "bsc.reload.failed": "Não foi possível ler a configuração. A seleção atual foi preservada."
 }
