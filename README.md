@@ -1,9 +1,56 @@
 # Better Selective Combat
 
-Better Selective Combat lets server owners and singleplayer users exclude individual weapons from Better Combat by exact item ID.
+Disable individual Better Combat weapons by exact item ID. Manage the disabled list with `/bsc` commands or a JSON config. Supports Fabric and NeoForge, dedicated servers and singleplayer.
 
-The mod supports Fabric and NeoForge on every Minecraft release officially supported by Better Combat from 1.21.1 through 26.2. It can be installed on a dedicated server without requiring connecting clients to install it. Installing it in a client instance enables it for singleplayer through Minecraft's integrated server.
+## Commands
 
-Disabled weapons can be managed with `/bsc` commands or by editing `config/better-selective-combat/disabled-weapons.json`. Changes made while players are connected require those players to reconnect before their Better Combat registry reflects the new selection.
+| Command                    | Description                         |
+| -------------------------- | ----------------------------------- |
+| `/bsc`                     | Show the mod name and version       |
+| `/bsc help`                | Show available commands             |
+| `/bsc disable <weapon_id>` | Disable a weapon                    |
+| `/bsc enable <weapon_id>`  | Enable a previously disabled weapon |
+| `/bsc status <weapon_id>`  | Show whether a weapon is disabled   |
+| `/bsc list [page]`         | List disabled weapons               |
+| `/bsc reload`              | Reload the configuration file       |
 
-Run `./gradlew buildAll` to build every supported artifact. Individual targets can be built with commands such as `./gradlew :mc1211-neoforge:build` or `./gradlew :mc262-fabric:build`.
+`disable`, `enable`, and `reload` require operator permission (level 2). The singleplayer world owner can also use them.
+
+## Config
+
+Weapon IDs use the standard `namespace:path` format, for example:
+
+```text
+minecraft:diamond_sword
+```
+
+The config file is stored at:
+
+```text
+config/better-selective-combat/disabled-weapons.json
+```
+
+Example:
+
+```json
+{
+  "disabled_weapons": [
+    "minecraft:diamond_sword",
+    "examplemod:greatsword"
+  ]
+}
+```
+
+The file is created automatically. You can edit it directly or use `/bsc disable` and `/bsc enable`.
+
+After editing it manually, run:
+
+```text
+/bsc reload
+```
+
+Players who are already connected must reconnect for changes to take effect on their client.
+
+## License
+
+Licensed under the [GNU General Public License v3.0](LICENSE).
