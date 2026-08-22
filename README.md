@@ -1,6 +1,6 @@
 # Better Selective Combat
 
-Disable individual Better Combat weapons by exact item ID. Manage the disabled list with `/bsc` commands or a JSON config. Supports Fabric and NeoForge, dedicated servers and singleplayer.
+Lets you choose which weapons should bypass Better Combat and use their original combat behavior instead.
 
 ## Commands
 
