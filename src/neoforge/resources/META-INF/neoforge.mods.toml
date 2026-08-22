@@ -33,3 +33,10 @@ type="required"
 versionRange="${better_combat_range}"
 ordering="AFTER"
 side="BOTH"
+
+[[dependencies.better_selective_combat]]
+modId="luckperms"
+type="optional"
+versionRange="[5,)"
+ordering="AFTER"
+side="BOTH"

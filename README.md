@@ -14,7 +14,7 @@ Disable individual Better Combat weapons by exact item ID. Manage the disabled l
 | `/bsc list [page]`         | List disabled weapons               |
 | `/bsc reload`              | Reload the configuration file       |
 
-`disable`, `enable`, and `reload` require operator permission (level 2). The singleplayer world owner can also use them.
+`disable`, `enable`, and `reload` require `better_selective_combat.manage` through LuckPerms or operator permission (level 2). The singleplayer world owner can also use them.
 
 ## Config
 
