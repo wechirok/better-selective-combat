@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "better_selective_combat",
+  "version": "${version}",
+  "name": "Better Selective Combat",
+  "description": "Disable individual weapons in Better Combat by item ID.",
+  "authors": [
+    "wechirok"
+  ],
+  "license": "GPL-3.0-only",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "dev.wechirok.betterselectivecombat.fabric.BetterSelectiveCombatFabric"
+    ]
+  },
+  "mixins": [
+    "better_selective_combat.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": "${minecraft_range}",
+    "fabric-api": "*",
+    "bettercombat": "${better_combat_range}"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.wechirok.betterselectivecombat.mixin",
+  "compatibilityLevel": "${java_compatibility}",
+  "mixins": [
+    "WeaponRegistryMixin",
+    "WeaponRegistryInvoker"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

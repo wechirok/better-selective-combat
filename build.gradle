@@ -1,0 +1,133 @@
+plugins {
+    id 'net.fabricmc.fabric-loom' version '1.18.0-alpha.16' apply false
+    id 'net.fabricmc.fabric-loom-remap' version '1.18.0-alpha.16' apply false
+    id 'net.neoforged.moddev' version '2.0.144' apply false
+}
+
+group = 'dev.wechirok.betterselectivecombat'
+version = '1.1.0'
+
+def targets = [
+        'mc1211-fabric'   : [loader: 'fabric', minecraft: '1.21.1', minecraftRange: '=1.21.1', java: 21, fabricApi: '0.116.15+1.21.1', neoForge: null, betterCombat: '2.4.0+1.21.1', betterCombatRange: '>=2.4.0 <3.0.0'],
+        'mc1211-neoforge' : [loader: 'neoforge', minecraft: '1.21.1', minecraftRange: '[1.21.1]', java: 21, fabricApi: null, neoForge: '21.1.248', betterCombat: '2.4.0+1.21.1', betterCombatRange: '[2.4.0,3.0.0)'],
+        'mc1214-fabric'   : [loader: 'fabric', minecraft: '1.21.4', minecraftRange: '=1.21.4', java: 21, fabricApi: '0.119.4+1.21.4', neoForge: null, betterCombat: '2.3.0+1.21.4', betterCombatRange: '>=2.3.0 <3.0.0'],
+        'mc1214-neoforge' : [loader: 'neoforge', minecraft: '1.21.4', minecraftRange: '[1.21.4]', java: 21, fabricApi: null, neoForge: '21.4.157', betterCombat: '2.3.0+1.21.4', betterCombatRange: '[2.3.0,3.0.0)'],
+        'mc1218-fabric'   : [loader: 'fabric', minecraft: '1.21.8', minecraftRange: '>=1.21.6 <=1.21.8', java: 21, fabricApi: '0.136.1+1.21.8', neoForge: null, betterCombat: '3.0.1+1.21.8', betterCombatRange: '>=3.0.0 <3.2.0'],
+        'mc1218-neoforge' : [loader: 'neoforge', minecraft: '1.21.8', minecraftRange: '[1.21.6,1.21.9)', java: 21, fabricApi: null, neoForge: '21.8.54', betterCombat: '3.0.1+1.21.8', betterCombatRange: '[3.0.0,3.2.0)'],
+        'mc12110-fabric'  : [loader: 'fabric', minecraft: '1.21.10', minecraftRange: '>=1.21.9 <=1.21.10', java: 21, fabricApi: '0.138.4+1.21.10', neoForge: null, betterCombat: '3.0.0+1.21.10', betterCombatRange: '>=3.0.0 <3.2.0'],
+        'mc12110-neoforge': [loader: 'neoforge', minecraft: '1.21.10', minecraftRange: '[1.21.9,1.21.11)', java: 21, fabricApi: null, neoForge: '21.10.64', betterCombat: '3.0.0+1.21.10', betterCombatRange: '[3.0.0,3.2.0)'],
+        'mc12111-fabric'  : [loader: 'fabric', minecraft: '1.21.11', minecraftRange: '=1.21.11', java: 21, fabricApi: '0.141.6+1.21.11', neoForge: null, betterCombat: '3.1.0+1.21.11', betterCombatRange: '>=3.0.0 <3.2.0'],
+        'mc12111-neoforge': [loader: 'neoforge', minecraft: '1.21.11', minecraftRange: '[1.21.11]', java: 21, fabricApi: null, neoForge: '21.11.45', betterCombat: '3.1.0+1.21.11', betterCombatRange: '[3.0.0,3.2.0)'],
+        'mc261-fabric'    : [loader: 'fabric', minecraft: '26.1.2', minecraftRange: '>=26.1 <=26.1.2', java: 25, fabricApi: '0.155.2+26.1.2', neoForge: null, betterCombat: '3.2.2+26.1.2', betterCombatRange: '>=3.2.0 <3.3.0'],
+        'mc261-neoforge'  : [loader: 'neoforge', minecraft: '26.1.2', minecraftRange: '[26.1,26.1.3)', java: 25, fabricApi: null, neoForge: '26.1.2.97', betterCombat: '3.2.2+26.1.2', betterCombatRange: '[3.2.0,3.3.0)'],
+        'mc262-fabric'    : [loader: 'fabric', minecraft: '26.2', minecraftRange: '=26.2', java: 25, fabricApi: '0.158.0+26.2', neoForge: null, betterCombat: '3.2.2+26.2', betterCombatRange: '>=3.2.0 <3.3.0'],
+        'mc262-neoforge'  : [loader: 'neoforge', minecraft: '26.2', minecraftRange: '[26.2]', java: 25, fabricApi: null, neoForge: '26.2.0.66', betterCombat: '3.2.2+26.2', betterCombatRange: '[3.2.0,3.3.0)']
+]
+
+subprojects {
+    def target = targets[project.name]
+    group = rootProject.group
+    version = rootProject.version
+
+    apply plugin: 'java-library'
+    if (target.loader == 'fabric') {
+        apply plugin: target.minecraft.startsWith('26.') ? 'net.fabricmc.fabric-loom' : 'net.fabricmc.fabric-loom-remap'
+    } else {
+        apply plugin: 'net.neoforged.moddev'
+    }
+
+    base {
+        archivesName = "better-selective-combat-${target.loader}-mc${target.minecraft}"
+    }
+
+    java {
+        toolchain.languageVersion = JavaLanguageVersion.of(target.java)
+        withSourcesJar()
+    }
+
+    repositories {
+        mavenCentral()
+        maven { url = 'https://maven.fabricmc.net' }
+        maven { url = 'https://api.modrinth.com/maven' }
+    }
+
+    sourceSets {
+        main {
+            def permissionSources = target.minecraft in ['1.21.1', '1.21.4', '1.21.8']
+                    ? 'src/minecraft-legacy/java'
+                    : target.minecraft == '1.21.10'
+                    ? 'src/minecraft-1.21.10/java'
+                    : 'src/minecraft-modern/java'
+            java.srcDirs = [
+                    rootProject.file('src/common/java'),
+                    rootProject.file("src/${target.loader}/java"),
+                    rootProject.file(permissionSources)
+            ]
+            resources.srcDirs = [rootProject.file('src/common/resources'), rootProject.file("src/${target.loader}/resources")]
+        }
+    }
+
+    if (target.loader == 'fabric') {
+        dependencies {
+            minecraft "com.mojang:minecraft:${target.minecraft}"
+            if (!target.minecraft.startsWith('26.')) {
+                mappings loom.officialMojangMappings()
+                modImplementation "net.fabricmc:fabric-loader:0.19.3"
+                modImplementation "net.fabricmc.fabric-api:fabric-api:${target.fabricApi}"
+            } else {
+                implementation "net.fabricmc:fabric-loader:0.19.3"
+                implementation "net.fabricmc.fabric-api:fabric-api:${target.fabricApi}"
+            }
+        }
+    } else {
+        neoForge {
+            version = target.neoForge
+            mods {
+                better_selective_combat {
+                    sourceSet sourceSets.main
+                }
+            }
+            runs {
+                server {
+                    server()
+                    gameDirectory = project.file('run')
+                    programArgument '--nogui'
+                }
+            }
+        }
+    }
+
+    dependencies {
+        compileOnly "maven.modrinth:better-combat:${target.betterCombat}-${target.loader}"
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+        options.release = target.java
+    }
+
+    def resourceProperties = [
+            version: project.version.toString(),
+            minecraft_version: target.minecraft,
+            minecraft_range: target.minecraftRange,
+            better_combat_range: target.betterCombatRange,
+            java_compatibility: "JAVA_${target.java}"
+    ]
+
+    processResources {
+        inputs.properties resourceProperties
+        filesMatching(['fabric.mod.json', 'META-INF/neoforge.mods.toml', 'better_selective_combat.mixins.json']) {
+            expand resourceProperties
+        }
+    }
+
+    tasks.named('jar', Jar).configure {
+        manifest {
+            attributes('Implementation-Title': 'better-selective-combat', 'Implementation-Version': project.version)
+        }
+    }
+}
+
+tasks.register('buildAll') {
+    dependsOn subprojects.collect { it.tasks.named('build') }
+}

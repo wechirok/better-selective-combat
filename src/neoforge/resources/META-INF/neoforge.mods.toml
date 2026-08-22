@@ -1,0 +1,35 @@
+modLoader="javafml"
+loaderVersion="[2,)"
+license="GPL-3.0-only"
+
+[[mods]]
+modId="better_selective_combat"
+version="${version}"
+displayName="Better Selective Combat"
+displayTest="IGNORE_SERVER_VERSION"
+authors="wechirok"
+description='''Disable individual weapons in Better Combat by item ID.'''
+
+[[mixins]]
+config="better_selective_combat.mixins.json"
+
+[[dependencies.better_selective_combat]]
+modId="neoforge"
+type="required"
+versionRange="[2,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.better_selective_combat]]
+modId="minecraft"
+type="required"
+versionRange="${minecraft_range}"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.better_selective_combat]]
+modId="bettercombat"
+type="required"
+versionRange="${better_combat_range}"
+ordering="AFTER"
+side="BOTH"
