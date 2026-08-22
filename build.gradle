@@ -99,6 +99,7 @@ subprojects {
 
     dependencies {
         compileOnly "maven.modrinth:better-combat:${target.betterCombat}-${target.loader}"
+        compileOnly "net.luckperms:api:5.5"
     }
 
     tasks.withType(JavaCompile).configureEach {

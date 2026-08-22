@@ -22,5 +22,8 @@
     "minecraft": "${minecraft_range}",
     "fabric-api": "*",
     "bettercombat": "${better_combat_range}"
+  },
+  "suggests": {
+    "luckperms": "*"
   }
 }

@@ -13,6 +13,8 @@ public final class PlatformPermissions {
             return true;
         }
         ServerPlayer player = source.getPlayer();
-        return player != null && source.getServer().isSingleplayerOwner(player.nameAndId());
+        return player != null
+                && (source.getServer().isSingleplayerOwner(player.nameAndId())
+                || PermissionService.canManage(player.getUUID()));
     }
 }
