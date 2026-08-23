@@ -170,7 +170,7 @@ publishMods {
     }
     def modrinthOptions = modrinthOptions {
         accessToken = providers.environmentVariable('MODRINTH_TOKEN')
-        projectId = 'better-selective-combat'
+        projectId = 'ARaBurjl'
         environment = CLIENT_OR_SERVER
     }
 
