@@ -2,26 +2,27 @@ plugins {
     id 'net.fabricmc.fabric-loom' version '1.18.0-alpha.16' apply false
     id 'net.fabricmc.fabric-loom-remap' version '1.18.0-alpha.16' apply false
     id 'net.neoforged.moddev' version '2.0.144' apply false
+    id 'me.modmuss50.mod-publish-plugin' version '2.2.0'
 }
 
 group = 'dev.wechirok.betterselectivecombat'
 version = '1.0.0'
 
 def targets = [
-        'mc1211-fabric'   : [loader: 'fabric', minecraft: '1.21.1', minecraftRange: '=1.21.1', java: 21, fabricApi: '0.116.15+1.21.1', neoForge: null, betterCombat: '2.4.0+1.21.1', betterCombatRange: '>=2.4.0 <3.0.0'],
-        'mc1211-neoforge' : [loader: 'neoforge', minecraft: '1.21.1', minecraftRange: '[1.21.1]', java: 21, fabricApi: null, neoForge: '21.1.248', betterCombat: '2.4.0+1.21.1', betterCombatRange: '[2.4.0,3.0.0)'],
-        'mc1214-fabric'   : [loader: 'fabric', minecraft: '1.21.4', minecraftRange: '=1.21.4', java: 21, fabricApi: '0.119.4+1.21.4', neoForge: null, betterCombat: '2.3.0+1.21.4', betterCombatRange: '>=2.3.0 <3.0.0'],
-        'mc1214-neoforge' : [loader: 'neoforge', minecraft: '1.21.4', minecraftRange: '[1.21.4]', java: 21, fabricApi: null, neoForge: '21.4.157', betterCombat: '2.3.0+1.21.4', betterCombatRange: '[2.3.0,3.0.0)'],
-        'mc1218-fabric'   : [loader: 'fabric', minecraft: '1.21.8', minecraftRange: '>=1.21.6 <=1.21.8', java: 21, fabricApi: '0.136.1+1.21.8', neoForge: null, betterCombat: '3.0.1+1.21.8', betterCombatRange: '>=3.0.0 <3.2.0'],
-        'mc1218-neoforge' : [loader: 'neoforge', minecraft: '1.21.8', minecraftRange: '[1.21.6,1.21.9)', java: 21, fabricApi: null, neoForge: '21.8.54', betterCombat: '3.0.1+1.21.8', betterCombatRange: '[3.0.0,3.2.0)'],
-        'mc12110-fabric'  : [loader: 'fabric', minecraft: '1.21.10', minecraftRange: '>=1.21.9 <=1.21.10', java: 21, fabricApi: '0.138.4+1.21.10', neoForge: null, betterCombat: '3.0.0+1.21.10', betterCombatRange: '>=3.0.0 <3.2.0'],
-        'mc12110-neoforge': [loader: 'neoforge', minecraft: '1.21.10', minecraftRange: '[1.21.9,1.21.11)', java: 21, fabricApi: null, neoForge: '21.10.64', betterCombat: '3.0.0+1.21.10', betterCombatRange: '[3.0.0,3.2.0)'],
-        'mc12111-fabric'  : [loader: 'fabric', minecraft: '1.21.11', minecraftRange: '=1.21.11', java: 21, fabricApi: '0.141.6+1.21.11', neoForge: null, betterCombat: '3.1.0+1.21.11', betterCombatRange: '>=3.0.0 <3.2.0'],
-        'mc12111-neoforge': [loader: 'neoforge', minecraft: '1.21.11', minecraftRange: '[1.21.11]', java: 21, fabricApi: null, neoForge: '21.11.45', betterCombat: '3.1.0+1.21.11', betterCombatRange: '[3.0.0,3.2.0)'],
-        'mc261-fabric'    : [loader: 'fabric', minecraft: '26.1.2', minecraftRange: '>=26.1 <=26.1.2', java: 25, fabricApi: '0.155.2+26.1.2', neoForge: null, betterCombat: '3.2.2+26.1.2', betterCombatRange: '>=3.2.0 <3.3.0'],
-        'mc261-neoforge'  : [loader: 'neoforge', minecraft: '26.1.2', minecraftRange: '[26.1,26.1.3)', java: 25, fabricApi: null, neoForge: '26.1.2.97', betterCombat: '3.2.2+26.1.2', betterCombatRange: '[3.2.0,3.3.0)'],
-        'mc262-fabric'    : [loader: 'fabric', minecraft: '26.2', minecraftRange: '=26.2', java: 25, fabricApi: '0.158.0+26.2', neoForge: null, betterCombat: '3.2.2+26.2', betterCombatRange: '>=3.2.0 <3.3.0'],
-        'mc262-neoforge'  : [loader: 'neoforge', minecraft: '26.2', minecraftRange: '[26.2]', java: 25, fabricApi: null, neoForge: '26.2.0.66', betterCombat: '3.2.2+26.2', betterCombatRange: '[3.2.0,3.3.0)']
+        'mc1211-fabric'   : [loader: 'fabric', minecraft: '1.21.1', publishVersions: ['1.21.1'], minecraftRange: '=1.21.1', java: 21, fabricApi: '0.116.15+1.21.1', neoForge: null, betterCombat: '2.4.0+1.21.1', betterCombatRange: '>=2.4.0 <3.0.0'],
+        'mc1211-neoforge' : [loader: 'neoforge', minecraft: '1.21.1', publishVersions: ['1.21.1'], minecraftRange: '[1.21.1]', java: 21, fabricApi: null, neoForge: '21.1.248', betterCombat: '2.4.0+1.21.1', betterCombatRange: '[2.4.0,3.0.0)'],
+        'mc1214-fabric'   : [loader: 'fabric', minecraft: '1.21.4', publishVersions: ['1.21.4'], minecraftRange: '=1.21.4', java: 21, fabricApi: '0.119.4+1.21.4', neoForge: null, betterCombat: '2.3.0+1.21.4', betterCombatRange: '>=2.3.0 <3.0.0'],
+        'mc1214-neoforge' : [loader: 'neoforge', minecraft: '1.21.4', publishVersions: ['1.21.4'], minecraftRange: '[1.21.4]', java: 21, fabricApi: null, neoForge: '21.4.157', betterCombat: '2.3.0+1.21.4', betterCombatRange: '[2.3.0,3.0.0)'],
+        'mc1218-fabric'   : [loader: 'fabric', minecraft: '1.21.8', publishVersions: ['1.21.6', '1.21.7', '1.21.8'], minecraftRange: '>=1.21.6 <=1.21.8', java: 21, fabricApi: '0.136.1+1.21.8', neoForge: null, betterCombat: '3.0.1+1.21.8', betterCombatRange: '>=3.0.0 <3.2.0'],
+        'mc1218-neoforge' : [loader: 'neoforge', minecraft: '1.21.8', publishVersions: ['1.21.6', '1.21.7', '1.21.8'], minecraftRange: '[1.21.6,1.21.9)', java: 21, fabricApi: null, neoForge: '21.8.54', betterCombat: '3.0.1+1.21.8', betterCombatRange: '[3.0.0,3.2.0)'],
+        'mc12110-fabric'  : [loader: 'fabric', minecraft: '1.21.10', publishVersions: ['1.21.9', '1.21.10'], minecraftRange: '>=1.21.9 <=1.21.10', java: 21, fabricApi: '0.138.4+1.21.10', neoForge: null, betterCombat: '3.0.0+1.21.10', betterCombatRange: '>=3.0.0 <3.2.0'],
+        'mc12110-neoforge': [loader: 'neoforge', minecraft: '1.21.10', publishVersions: ['1.21.9', '1.21.10'], minecraftRange: '[1.21.9,1.21.11)', java: 21, fabricApi: null, neoForge: '21.10.64', betterCombat: '3.0.0+1.21.10', betterCombatRange: '[3.0.0,3.2.0)'],
+        'mc12111-fabric'  : [loader: 'fabric', minecraft: '1.21.11', publishVersions: ['1.21.11'], minecraftRange: '=1.21.11', java: 21, fabricApi: '0.141.6+1.21.11', neoForge: null, betterCombat: '3.1.0+1.21.11', betterCombatRange: '>=3.0.0 <3.2.0'],
+        'mc12111-neoforge': [loader: 'neoforge', minecraft: '1.21.11', publishVersions: ['1.21.11'], minecraftRange: '[1.21.11]', java: 21, fabricApi: null, neoForge: '21.11.45', betterCombat: '3.1.0+1.21.11', betterCombatRange: '[3.0.0,3.2.0)'],
+        'mc261-fabric'    : [loader: 'fabric', minecraft: '26.1.2', publishVersions: ['26.1', '26.1.1', '26.1.2'], minecraftRange: '>=26.1 <=26.1.2', java: 25, fabricApi: '0.155.2+26.1.2', neoForge: null, betterCombat: '3.2.2+26.1.2', betterCombatRange: '>=3.2.0 <3.3.0'],
+        'mc261-neoforge'  : [loader: 'neoforge', minecraft: '26.1.2', publishVersions: ['26.1', '26.1.1', '26.1.2'], minecraftRange: '[26.1,26.1.3)', java: 25, fabricApi: null, neoForge: '26.1.2.97', betterCombat: '3.2.2+26.1.2', betterCombatRange: '[3.2.0,3.3.0)'],
+        'mc262-fabric'    : [loader: 'fabric', minecraft: '26.2', publishVersions: ['26.2'], minecraftRange: '=26.2', java: 25, fabricApi: '0.158.0+26.2', neoForge: null, betterCombat: '3.2.2+26.2', betterCombatRange: '>=3.2.0 <3.3.0'],
+        'mc262-neoforge'  : [loader: 'neoforge', minecraft: '26.2', publishVersions: ['26.2'], minecraftRange: '[26.2]', java: 25, fabricApi: null, neoForge: '26.2.0.66', betterCombat: '3.2.2+26.2', betterCombatRange: '[3.2.0,3.3.0)']
 ]
 
 subprojects {
@@ -37,7 +38,7 @@ subprojects {
     }
 
     base {
-        archivesName = "better-selective-combat-${target.loader}-mc${target.minecraft}"
+        archivesName = "betterselectivecombat-${target.loader}"
     }
 
     java {
@@ -127,8 +128,98 @@ subprojects {
             attributes('Implementation-Title': 'better-selective-combat', 'Implementation-Version': project.version)
         }
     }
+
+    tasks.withType(AbstractArchiveTask).configureEach {
+        archiveVersion = "${rootProject.version}+${target.minecraft}"
+    }
+
+    def artifactTask = target.loader == 'fabric' && !target.minecraft.startsWith('26.')
+            ? tasks.named('remapJar')
+            : tasks.named('jar')
+    project.ext.releaseArtifact = artifactTask.flatMap { it.archiveFile }
 }
 
 tasks.register('buildAll') {
     dependsOn subprojects.collect { it.tasks.named('build') }
+}
+
+tasks.register('collectReleaseJars', Sync) {
+    dependsOn tasks.named('buildAll')
+    into layout.buildDirectory.dir('release')
+    from subprojects.collect { it.ext.releaseArtifact }
+}
+
+def releaseTypeName = (findProperty('release_type') ?: 'release').toString()
+def releaseType = releaseTypeName == 'alpha'
+        ? me.modmuss50.mpp.ReleaseType.ALPHA
+        : releaseTypeName == 'beta'
+        ? me.modmuss50.mpp.ReleaseType.BETA
+        : me.modmuss50.mpp.ReleaseType.STABLE
+def releaseArtifacts = targets.collect { name, target -> project(":${name}").ext.releaseArtifact }
+
+publishMods {
+    changelog = providers.environmentVariable('CHANGELOG').orElse("Release ${rootProject.version}")
+    type = releaseType
+    dryRun = providers.gradleProperty('dry_run').map { it.toBoolean() }.orElse(false)
+
+    def curseForgeOptions = curseforgeOptions {
+        accessToken = providers.environmentVariable('CURSEFORGE_TOKEN')
+        projectId = '1664386'
+        client = true
+        server = true
+    }
+    def modrinthOptions = modrinthOptions {
+        accessToken = providers.environmentVariable('MODRINTH_TOKEN')
+        projectId = 'better-selective-combat'
+        environment = CLIENT_OR_SERVER
+    }
+
+    targets.each { name, target ->
+        def artifact = project(":${name}").ext.releaseArtifact
+        def releaseName = "${rootProject.version}+${target.minecraft}-${target.loader}"
+
+        curseforge("curseforge-${name}") {
+            from curseForgeOptions
+            file = artifact
+            displayName = releaseName
+            version = releaseName
+            modLoaders.add(target.loader)
+            target.publishVersions.each { minecraftVersions.add(it) }
+            javaVersions.add(JavaVersion.toVersion(target.java))
+            requires('better-combat-by-daedelus')
+            optional('luckperms')
+            if (target.loader == 'fabric') {
+                requires('fabric-api')
+            }
+        }
+
+        modrinth("modrinth-${name}") {
+            from modrinthOptions
+            file = artifact
+            displayName = releaseName
+            version = releaseName
+            modLoaders.add(target.loader)
+            target.publishVersions.each { minecraftVersions.add(it) }
+            requires('better-combat')
+            optional('luckperms')
+            if (target.loader == 'fabric') {
+                requires('fabric-api')
+            }
+        }
+    }
+
+    github {
+        accessToken = providers.environmentVariable('GITHUB_TOKEN')
+        repository = providers.environmentVariable('GITHUB_REPOSITORY').orElse('wechirok/better-selective-combat')
+        commitish = providers.environmentVariable('GITHUB_SHA').orElse('main')
+        tagName = "v${rootProject.version}"
+        displayName = "v${rootProject.version}"
+        version = rootProject.version.toString()
+        file = releaseArtifacts.first()
+        additionalFiles.from(releaseArtifacts.drop(1))
+    }
+}
+
+tasks.named('publishMods') {
+    dependsOn tasks.named('collectReleaseJars')
 }
