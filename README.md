@@ -47,11 +47,7 @@ Example:
 
 The file is created automatically. You can edit it directly or use `/bsc disable` and `/bsc enable`.
 
-After editing it manually, run:
-
-```text
-/bsc reload
-```
+After editing it manually, use `/bsc reload`
 
 Players who are already connected must reconnect for changes to take effect on their client.
 
