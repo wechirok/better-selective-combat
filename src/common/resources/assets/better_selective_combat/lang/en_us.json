@@ -20,5 +20,14 @@
   "bsc.list.header": "Disabled weapons, page %s of %s:",
   "bsc.list.invalid_page": "Page %s does not exist. Last page: %s.",
   "bsc.reload.success": "The configuration has been reloaded.",
-  "bsc.reload.failed": "The configuration could not be read. The current selection was preserved."
+  "bsc.reload.failed": "The configuration could not be read. The current selection was preserved.",
+  "key.categories.better_selective_combat": "Better Selective Combat",
+  "key.better_selective_combat.toggle_all": "Toggle Better Combat",
+  "key.better_selective_combat.toggle_item": "Toggle Better Combat for held item",
+  "bsc.client.global.enabled": "Better Combat enabled",
+  "bsc.client.global.disabled": "Better Combat disabled",
+  "bsc.client.item.enabled": "Better Combat enabled for %s",
+  "bsc.client.item.disabled": "Better Combat disabled for %s",
+  "bsc.client.item.empty": "Hold an item in your main hand",
+  "bsc.client.error.write": "The client settings could not be saved"
 }

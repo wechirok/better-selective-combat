@@ -9,7 +9,7 @@ displayName="Better Selective Combat"
 displayTest="IGNORE_SERVER_VERSION"
 authors="wechirok"
 logoFile="icon.png"
-description='''Disable individual weapons in Better Combat by item ID.'''
+description='''Pick which weapons should ignore Better Combat on the client and server side.'''
 
 [[mixins]]
 config="better_selective_combat.mixins.json"

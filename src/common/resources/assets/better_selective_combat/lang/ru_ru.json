@@ -20,5 +20,14 @@
   "bsc.list.header": "Отключённое оружие, страница %s из %s:",
   "bsc.list.invalid_page": "Страницы %s не существует. Последняя страница: %s.",
   "bsc.reload.success": "Конфигурация перезагружена.",
-  "bsc.reload.failed": "Не удалось прочитать конфигурацию. Текущий выбор сохранён."
+  "bsc.reload.failed": "Не удалось прочитать конфигурацию. Текущий выбор сохранён.",
+  "key.categories.better_selective_combat": "Better Selective Combat",
+  "key.better_selective_combat.toggle_all": "Переключить Better Combat",
+  "key.better_selective_combat.toggle_item": "Переключить Better Combat для предмета в руке",
+  "bsc.client.global.enabled": "Better Combat включён",
+  "bsc.client.global.disabled": "Better Combat отключён",
+  "bsc.client.item.enabled": "Better Combat включён для %s",
+  "bsc.client.item.disabled": "Better Combat отключён для %s",
+  "bsc.client.item.empty": "Возьмите предмет в основную руку",
+  "bsc.client.error.write": "Не удалось сохранить клиентские настройки"
 }

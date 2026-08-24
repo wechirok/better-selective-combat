@@ -28,10 +28,10 @@ Weapon IDs use the standard `namespace:path` format, for example:
 minecraft:diamond_sword
 ```
 
-The config file is stored at:
+The server config file is stored at:
 
 ```text
-config/better-selective-combat/disabled-weapons.json
+config/betterselectivecombat/server.json
 ```
 
 Example:
@@ -48,6 +48,12 @@ Example:
 The file is created automatically. You can edit it directly or use `/bsc disable` and `/bsc enable`.
 
 After editing it manually, use `/bsc reload`
+
+Client preferences are stored separately at:
+
+```text
+config/betterselectivecombat/client.json
+```
 
 Players who are already connected must reconnect for changes to take effect on their client.
 
