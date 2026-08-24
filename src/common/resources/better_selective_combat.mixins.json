@@ -7,6 +7,10 @@
     "WeaponRegistryMixin",
     "WeaponRegistryInvoker"
   ],
+  "client": [
+    "client.MinecraftClientMixin",
+    "client.WeaponRegistryClientMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   }

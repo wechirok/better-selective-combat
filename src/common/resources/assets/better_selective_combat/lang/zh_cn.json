@@ -20,5 +20,14 @@
   "bsc.list.header": "已禁用的武器，第 %s 页，共 %s 页：",
   "bsc.list.invalid_page": "第 %s 页不存在。最后一页：%s。",
   "bsc.reload.success": "配置已重新加载。",
-  "bsc.reload.failed": "无法读取配置。当前选择已保留。"
+  "bsc.reload.failed": "无法读取配置。当前选择已保留。",
+  "key.categories.better_selective_combat": "Better Selective Combat",
+  "key.better_selective_combat.toggle_all": "切换 Better Combat",
+  "key.better_selective_combat.toggle_item": "切换手持物品的 Better Combat",
+  "bsc.client.global.enabled": "已启用 Better Combat",
+  "bsc.client.global.disabled": "已禁用 Better Combat",
+  "bsc.client.item.enabled": "已为 %s 启用 Better Combat",
+  "bsc.client.item.disabled": "已为 %s 禁用 Better Combat",
+  "bsc.client.item.empty": "请在主手持有一个物品",
+  "bsc.client.error.write": "无法保存客户端设置"
 }

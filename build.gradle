@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'dev.wechirok.betterselectivecombat'
-version = '1.0.0'
+version = '1.1.0'
 
 def targets = [
         'mc1211-fabric'   : [loader: 'fabric', minecraft: '1.21.1', publishVersions: ['1.21.1'], minecraftRange: '=1.21.1', java: 21, fabricApi: '0.116.15+1.21.1', neoForge: null, betterCombat: '2.4.0+1.21.1', betterCombatRange: '>=2.4.0 <3.0.0'],
@@ -62,8 +62,26 @@ subprojects {
             java.srcDirs = [
                     rootProject.file('src/common/java'),
                     rootProject.file("src/${target.loader}/java"),
-                    rootProject.file(permissionSources)
+                    rootProject.file(permissionSources),
+                    rootProject.file(target.minecraft in ['1.21.1', '1.21.4', '1.21.8']
+                            ? 'src/minecraft-client-legacy/java'
+                            : 'src/minecraft-client-modern/java'),
+                    rootProject.file(target.minecraft in ['1.21.1', '1.21.4']
+                            ? 'src/minecraft-inventory-legacy/java'
+                            : 'src/minecraft-inventory-modern/java'),
+                    rootProject.file(target.minecraft == '26.2'
+                            ? 'src/minecraft-client-262/java'
+                            : 'src/minecraft-client-pre-262/java')
             ]
+            if (target.loader == 'fabric') {
+                java.srcDir rootProject.file(target.minecraft.startsWith('26.')
+                        ? 'src/fabric-client-modern/java'
+                        : 'src/fabric-client-legacy/java')
+            } else {
+                java.srcDir rootProject.file(target.minecraft in ['1.21.1', '1.21.4', '1.21.8']
+                        ? 'src/neoforge-client-legacy/java'
+                        : 'src/neoforge-client-modern/java')
+            }
             resources.srcDirs = [rootProject.file('src/common/resources'), rootProject.file("src/${target.loader}/resources")]
         }
     }

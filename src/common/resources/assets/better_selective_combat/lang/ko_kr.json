@@ -20,5 +20,14 @@
   "bsc.list.header": "비활성화된 무기, %s/%s 페이지:",
   "bsc.list.invalid_page": "%s 페이지가 존재하지 않습니다. 마지막 페이지: %s.",
   "bsc.reload.success": "설정을 다시 불러왔습니다.",
-  "bsc.reload.failed": "설정을 읽을 수 없습니다. 현재 선택이 유지되었습니다."
+  "bsc.reload.failed": "설정을 읽을 수 없습니다. 현재 선택이 유지되었습니다.",
+  "key.categories.better_selective_combat": "Better Selective Combat",
+  "key.better_selective_combat.toggle_all": "Better Combat 전환",
+  "key.better_selective_combat.toggle_item": "들고 있는 아이템의 Better Combat 전환",
+  "bsc.client.global.enabled": "Better Combat 활성화됨",
+  "bsc.client.global.disabled": "Better Combat 비활성화됨",
+  "bsc.client.item.enabled": "%s에 Better Combat 활성화됨",
+  "bsc.client.item.disabled": "%s에 Better Combat 비활성화됨",
+  "bsc.client.item.empty": "주 손에 아이템을 들어 주세요",
+  "bsc.client.error.write": "클라이언트 설정을 저장할 수 없습니다"
 }

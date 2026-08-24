@@ -3,7 +3,7 @@
   "id": "better_selective_combat",
   "version": "${version}",
   "name": "Better Selective Combat",
-  "description": "Disable individual weapons in Better Combat by item ID.",
+  "description": "Pick which weapons should ignore Better Combat on the client and server side.",
   "authors": [
     "wechirok"
   ],
@@ -13,6 +13,9 @@
   "entrypoints": {
     "main": [
       "dev.wechirok.betterselectivecombat.fabric.BetterSelectiveCombatFabric"
+    ],
+    "client": [
+      "dev.wechirok.betterselectivecombat.fabric.BetterSelectiveCombatFabricClient"
     ]
   },
   "mixins": [

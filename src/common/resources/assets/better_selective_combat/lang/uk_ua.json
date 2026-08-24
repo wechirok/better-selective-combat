@@ -20,5 +20,14 @@
   "bsc.list.header": "Вимкнена зброя, сторінка %s з %s:",
   "bsc.list.invalid_page": "Сторінки %s не існує. Остання сторінка: %s.",
   "bsc.reload.success": "Конфігурацію перезавантажено.",
-  "bsc.reload.failed": "Не вдалося прочитати конфігурацію. Поточний вибір збережено."
+  "bsc.reload.failed": "Не вдалося прочитати конфігурацію. Поточний вибір збережено.",
+  "key.categories.better_selective_combat": "Better Selective Combat",
+  "key.better_selective_combat.toggle_all": "Перемкнути Better Combat",
+  "key.better_selective_combat.toggle_item": "Перемкнути Better Combat для предмета в руці",
+  "bsc.client.global.enabled": "Better Combat увімкнено",
+  "bsc.client.global.disabled": "Better Combat вимкнено",
+  "bsc.client.item.enabled": "Better Combat увімкнено для %s",
+  "bsc.client.item.disabled": "Better Combat вимкнено для %s",
+  "bsc.client.item.empty": "Візьміть предмет в основну руку",
+  "bsc.client.error.write": "Не вдалося зберегти клієнтські налаштування"
 }

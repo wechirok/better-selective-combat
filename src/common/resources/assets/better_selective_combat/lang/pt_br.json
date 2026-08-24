@@ -20,5 +20,14 @@
   "bsc.list.header": "Armas desativadas, página %s de %s:",
   "bsc.list.invalid_page": "A página %s não existe. Última página: %s.",
   "bsc.reload.success": "A configuração foi recarregada.",
-  "bsc.reload.failed": "Não foi possível ler a configuração. A seleção atual foi preservada."
+  "bsc.reload.failed": "Não foi possível ler a configuração. A seleção atual foi preservada.",
+  "key.categories.better_selective_combat": "Better Selective Combat",
+  "key.better_selective_combat.toggle_all": "Alternar Better Combat",
+  "key.better_selective_combat.toggle_item": "Alternar Better Combat para o item na mão",
+  "bsc.client.global.enabled": "Better Combat ativado",
+  "bsc.client.global.disabled": "Better Combat desativado",
+  "bsc.client.item.enabled": "Better Combat ativado para %s",
+  "bsc.client.item.disabled": "Better Combat desativado para %s",
+  "bsc.client.item.empty": "Segure um item na mão principal",
+  "bsc.client.error.write": "Não foi possível salvar as configurações do cliente"
 }
