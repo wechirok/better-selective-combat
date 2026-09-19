@@ -11,7 +11,7 @@ public final class PlatformPermissions {
         if (source.hasPermission(2)) {
             return true;
         }
-        ServerPlayer player = source.getPlayer();
+        ServerPlayer player = source.getEntity() instanceof ServerPlayer current ? current : null;
         return player != null
                 && (source.getServer().isSingleplayerOwner(player.getGameProfile())
                 || PermissionService.canManage(player.getUUID()));

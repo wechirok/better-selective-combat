@@ -14,7 +14,7 @@ import dev.wechirok.betterselectivecombat.selection.WeaponSelectionService;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.network.chat.Component;
+import dev.wechirok.betterselectivecombat.compat.GameText;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.List;
@@ -166,16 +166,16 @@ public final class BscCommands {
     }
 
     private static String language(CommandSourceStack source) {
-        ServerPlayer player = source.getPlayer();
-        return player == null ? Translations.DEFAULT_LANGUAGE : player.clientInformation().language();
+        ServerPlayer player = source.getEntity() instanceof ServerPlayer current ? current : null;
+        return player == null ? Translations.DEFAULT_LANGUAGE : PlayerLanguage.get(player);
     }
 
     private static void success(CommandSourceStack source, String message) {
-        source.sendSuccess(() -> Component.literal(message), false);
+        CommandFeedback.success(source, GameText.literal(message));
     }
 
     private static int failure(CommandSourceStack source, String message) {
-        source.sendFailure(Component.literal(message));
+        source.sendFailure(GameText.literal(message));
         return 0;
     }
 }

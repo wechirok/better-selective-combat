@@ -29,7 +29,18 @@ def targets = [
         'mc262-neoforge': 'versions/26.2/neoforge'
 ]
 
-targets.each { name, directory ->
+['mc1182': '1.18.2', 'mc1192': '1.19.2', 'mc1193': '1.19.3', 'mc1194': '1.19.4',
+ 'mc1201': '1.20.1', 'mc1202': '1.20.2', 'mc1204': '1.20.4', 'mc121': '1.21', 'mc263': '26.3'].each { name, minecraft ->
+    ['fabric', minecraft in ['1.20.4', '1.21', '26.3'] ? 'neoforge' : 'forge'].each { loader ->
+        targets["${name}-${loader}"] = "versions/${minecraft}/${loader}"
+    }
+}
+
+def selected = providers.gradleProperty('targets').map { it.split(',').toList() }.orNull
+targets.findAll { name, directory -> selected == null || name in selected }.each { name, directory ->
+    if (name == 'mc1202-forge') {
+        return
+    }
     include name
     project(":${name}").projectDir = file(directory)
 }

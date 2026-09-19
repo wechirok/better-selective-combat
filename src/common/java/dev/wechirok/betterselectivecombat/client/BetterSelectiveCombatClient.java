@@ -4,7 +4,7 @@ import dev.wechirok.betterselectivecombat.config.ConfigPaths;
 import net.bettercombat.api.MinecraftClient_BetterCombat;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.registries.BuiltInRegistries;
+import dev.wechirok.betterselectivecombat.compat.GameText;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
@@ -70,7 +70,7 @@ public final class BetterSelectiveCombatClient {
             return;
         }
         cancelAttack(minecraft);
-        Component message = Component.translatable(
+        Component message = GameText.translatable(
                 result.enabled() ? "bsc.client.item.enabled" : "bsc.client.item.disabled",
                 stack.getHoverName()
         ).withStyle(result.enabled() ? ChatFormatting.GREEN : ChatFormatting.RED);
@@ -82,7 +82,7 @@ public final class BetterSelectiveCombatClient {
     }
 
     private static String itemId(ItemStack stack) {
-        return BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
+        return ItemIds.get(stack);
     }
 
     private static ItemStack selectedItem(Minecraft minecraft) {
@@ -90,6 +90,6 @@ public final class BetterSelectiveCombatClient {
     }
 
     private static void show(Minecraft minecraft, String key, ChatFormatting color) {
-        ClientHud.show(minecraft, Component.translatable(key).withStyle(color));
+        ClientHud.show(minecraft, GameText.translatable(key).withStyle(color));
     }
 }
