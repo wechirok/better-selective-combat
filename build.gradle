@@ -274,7 +274,7 @@ def externalBuild = tasks.register('buildMc1202Forge', Exec) {
     onlyIf { externalTarget in selectedTargets }
 }
 def releaseArtifactFor = { name ->
-    name == externalTarget ? providers.provider { externalArtifact.asFile } : project(":${name}").ext.releaseArtifact
+    name == externalTarget ? providers.provider { externalArtifact } : project(":${name}").ext.releaseArtifact
 }
 
 tasks.register('buildAll') {
