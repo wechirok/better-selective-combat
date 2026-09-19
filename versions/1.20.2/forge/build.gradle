@@ -1,0 +1,109 @@
+buildscript {
+    repositories {
+        maven { url = 'https://maven.minecraftforge.net' }
+        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:6.0.54'
+        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
+    }
+}
+
+plugins {
+    id 'java-library'
+}
+
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'org.spongepowered.mixin'
+
+group = 'dev.wechirok.betterselectivecombat'
+version = '1.1.0'
+
+base {
+    archivesName = 'betterselectivecombat-forge'
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(17)
+    withSourcesJar()
+}
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://api.modrinth.com/maven' }
+}
+
+sourceSets {
+    main {
+        java.srcDirs = [
+                '../../../src/common/java',
+                '../../../src/forge/java',
+                '../../../src/forge-modern/java',
+                '../../../src/minecraft-legacy/java',
+                '../../../src/minecraft-client-legacy/java',
+                '../../../src/minecraft-inventory-legacy/java',
+                '../../../src/minecraft-client-pre-262/java',
+                '../../../src/minecraft-text-modern/java',
+                '../../../src/minecraft-registry-modern/java',
+                '../../../src/minecraft-command-modern/java',
+                '../../../src/minecraft-language-modern/java'
+        ]
+        resources.srcDirs = ['../../../src/common/resources', '../../../src/forge/resources']
+    }
+}
+
+minecraft {
+    mappings channel: 'official', version: '1.20.2'
+    copyIdeResources = true
+}
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.20.2-48.1.0'
+    compileOnly fg.deobf('maven.modrinth:better-combat:1.8.5+1.20.2-forge')
+    compileOnly 'net.luckperms:api:5.5'
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+}
+
+mixin {
+    add sourceSets.main, 'better_selective_combat.refmap.json'
+    config 'better_selective_combat.mixins.json'
+}
+
+def resourceProperties = [
+        version: version.toString(), minecraft_version: '1.20.2', minecraft_range: '[1.20.2]',
+        better_combat_range: '[1.6.2,2.0.0)', java_compatibility: 'JAVA_17',
+        fabric_api_id: 'fabric-api', fabric_entrypoint: 'BetterSelectiveCombatFabric',
+        legacy_mixins: '', refmap: '"refmap": "better_selective_combat.refmap.json",'
+]
+
+processResources {
+    inputs.properties resourceProperties
+    filesMatching(['META-INF/mods.toml', 'better_selective_combat.mixins.json']) {
+        expand resourceProperties
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 17
+}
+
+tasks.named('jar', Jar).configure {
+    archiveVersion = "${version}+1.20.2"
+    manifest {
+        attributes(
+                'Implementation-Title': 'better-selective-combat',
+                'Implementation-Version': version,
+                'MixinConfigs': 'better_selective_combat.mixins.json'
+        )
+    }
+    finalizedBy 'reobfJar'
+}
+
+tasks.named('sourcesJar', Jar).configure {
+    archiveVersion = "${version}+1.20.2"
+}
+
+reobf {
+    jar {}
+}

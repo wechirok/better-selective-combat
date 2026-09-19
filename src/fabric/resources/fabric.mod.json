@@ -12,7 +12,7 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "dev.wechirok.betterselectivecombat.fabric.BetterSelectiveCombatFabric"
+      "dev.wechirok.betterselectivecombat.fabric.${fabric_entrypoint}"
     ],
     "client": [
       "dev.wechirok.betterselectivecombat.fabric.BetterSelectiveCombatFabricClient"
@@ -24,7 +24,7 @@
   "depends": {
     "fabricloader": ">=0.16.0",
     "minecraft": "${minecraft_range}",
-    "fabric-api": "*",
+    "${fabric_api_id}": "*",
     "bettercombat": "${better_combat_range}"
   },
   "suggests": {

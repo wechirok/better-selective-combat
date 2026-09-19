@@ -1,7 +1,9 @@
 plugins {
+    id 'java-base'
     id 'net.fabricmc.fabric-loom' version '1.18.0-alpha.16' apply false
     id 'net.fabricmc.fabric-loom-remap' version '1.18.0-alpha.16' apply false
-    id 'net.neoforged.moddev' version '2.0.144' apply false
+    id 'net.neoforged.moddev' version '2.0.147' apply false
+    id 'net.neoforged.moddev.legacyforge' version '2.0.147' apply false
     id 'me.modmuss50.mod-publish-plugin' version '2.2.0'
 }
 
@@ -25,6 +27,50 @@ def targets = [
         'mc262-neoforge'  : [loader: 'neoforge', minecraft: '26.2', publishVersions: ['26.2'], minecraftRange: '[26.2]', java: 25, fabricApi: null, neoForge: '26.2.0.66', betterCombat: '3.2.2+26.2', betterCombatRange: '[3.2.0,3.3.0)']
 ]
 
+def legacyTargets = [
+        'mc1182': [minecraft: '1.18.2', games: ['1.18.2'], fabricApi: '0.77.0+1.18.2', forge: '1.18.2-40.2.21', betterCombat: '1.6.2+1.18.2'],
+        'mc1192': [minecraft: '1.19.2', games: ['1.19', '1.19.1', '1.19.2'], fabricApi: '0.77.0+1.19.2', forge: '1.19.2-43.3.0', betterCombat: '1.7.1+1.19'],
+        'mc1193': [minecraft: '1.19.3', games: ['1.19.3'], fabricApi: '0.76.1+1.19.3', forge: '1.19.3-44.1.0', betterCombat: '1.7.1+1.19.3'],
+        'mc1194': [minecraft: '1.19.4', games: ['1.19.4'], fabricApi: '0.87.2+1.19.4', forge: '1.19.4-45.2.0', betterCombat: '1.7.1+1.19.4'],
+        'mc1201': [minecraft: '1.20.1', games: ['1.20', '1.20.1'], fabricApi: '0.92.12+1.20.1', forge: '1.20.1-47.3.0', betterCombat: '1.9.0+1.20.1'],
+        'mc1202': [minecraft: '1.20.2', games: ['1.20.2'], fabricApi: '0.91.6+1.20.2', forge: '1.20.2-48.1.0', betterCombat: '1.8.1+1.20.2'],
+        'mc1204': [minecraft: '1.20.4', games: ['1.20.4'], fabricApi: '0.97.3+1.20.4', neoForge: '20.4.251', betterCombat: '1.9.0+1.20.4']
+]
+legacyTargets.each { name, spec ->
+    ['fabric', spec.neoForge ? 'neoforge' : 'forge'].each { loader ->
+        def first = spec.games.first()
+        def last = spec.games.last()
+        targets["${name}-${loader}"] = [
+                loader: loader, minecraft: spec.minecraft, publishVersions: spec.games,
+                minecraftRange: loader == 'fabric'
+                        ? ">=${first} <=${last}"
+                        : first == last ? "[${first}]" : "[${first},${last}]",
+                java: 17, fabricApi: spec.fabricApi, forge: spec.forge, neoForge: spec.neoForge,
+                betterCombat: name == 'mc1202' && loader == 'forge' ? '1.8.5+1.20.2' : spec.betterCombat,
+                betterCombatRange: loader == 'fabric' ? '>=1.6.2 <2.0.0' : '[1.6.2,2.0.0)',
+                legacy: true,
+                publishLoaders: name == 'mc1201' && loader == 'forge' ? ['forge', 'neoforge'] : [loader]
+        ]
+    }
+}
+['fabric', 'neoforge'].each { loader ->
+    targets["mc121-${loader}"] = targets["mc1211-${loader}"] + [
+            minecraft: '1.21', publishVersions: ['1.21'],
+            minecraftRange: loader == 'fabric' ? '=1.21' : '[1.21]',
+            fabricApi: '0.102.0+1.21', neoForge: '21.0.167'
+    ]
+    targets["mc263-${loader}"] = targets["mc262-${loader}"] + [
+            minecraft: '26.3', publishVersions: ['26.3'],
+            minecraftRange: loader == 'fabric' ? '=26.3' : '[26.3]',
+            fabricApi: '0.161.0+26.3', neoForge: '26.3.0.7-beta', betterCombat: '3.2.2+26.3'
+    ]
+}
+def selectedTargets = providers.gradleProperty('targets').map { it.split(',').toList() }.orElse(targets.keySet().toList()).get()
+if (!targets.keySet().containsAll(selectedTargets)) {
+    throw new GradleException("Unknown build targets: ${selectedTargets - targets.keySet()}")
+}
+targets = targets.findAll { name, target -> name in selectedTargets }
+
 subprojects {
     def target = targets[project.name]
     group = rootProject.group
@@ -33,6 +79,8 @@ subprojects {
     apply plugin: 'java-library'
     if (target.loader == 'fabric') {
         apply plugin: target.minecraft.startsWith('26.') ? 'net.fabricmc.fabric-loom' : 'net.fabricmc.fabric-loom-remap'
+    } else if (target.loader == 'forge') {
+        apply plugin: 'net.neoforged.moddev.legacyforge'
     } else {
         apply plugin: 'net.neoforged.moddev'
     }
@@ -54,7 +102,8 @@ subprojects {
 
     sourceSets {
         main {
-            def permissionSources = target.minecraft in ['1.21.1', '1.21.4', '1.21.8']
+            def oldMinecraft = target.legacy || target.minecraft in ['1.21', '1.21.1', '1.21.4', '1.21.8']
+            def permissionSources = oldMinecraft
                     ? 'src/minecraft-legacy/java'
                     : target.minecraft == '1.21.10'
                     ? 'src/minecraft-1.21.10/java'
@@ -63,24 +112,39 @@ subprojects {
                     rootProject.file('src/common/java'),
                     rootProject.file("src/${target.loader}/java"),
                     rootProject.file(permissionSources),
-                    rootProject.file(target.minecraft in ['1.21.1', '1.21.4', '1.21.8']
+                    rootProject.file(oldMinecraft
                             ? 'src/minecraft-client-legacy/java'
                             : 'src/minecraft-client-modern/java'),
-                    rootProject.file(target.minecraft in ['1.21.1', '1.21.4']
+                    rootProject.file(target.legacy || target.minecraft in ['1.21', '1.21.1', '1.21.4']
                             ? 'src/minecraft-inventory-legacy/java'
                             : 'src/minecraft-inventory-modern/java'),
-                    rootProject.file(target.minecraft == '26.2'
+                    rootProject.file(target.minecraft in ['26.2', '26.3']
                             ? 'src/minecraft-client-262/java'
                             : 'src/minecraft-client-pre-262/java')
             ]
+            java.srcDir rootProject.file(target.minecraft == '1.18.2'
+                    ? 'src/minecraft-1182/java' : 'src/minecraft-text-modern/java')
+            java.srcDir rootProject.file(target.minecraft in ['1.18.2', '1.19.2']
+                    ? 'src/minecraft-registry-legacy/java' : 'src/minecraft-registry-modern/java')
+            java.srcDir rootProject.file(target.minecraft in ['1.18.2', '1.19.2', '1.19.3', '1.19.4']
+                    ? 'src/minecraft-command-legacy/java' : 'src/minecraft-command-modern/java')
+            java.srcDir rootProject.file(target.legacy && target.minecraft != '1.20.4'
+                    && target.minecraft != '1.20.2'
+                    ? 'src/minecraft-language-legacy/java' : 'src/minecraft-language-modern/java')
             if (target.loader == 'fabric') {
                 java.srcDir rootProject.file(target.minecraft.startsWith('26.')
                         ? 'src/fabric-client-modern/java'
                         : 'src/fabric-client-legacy/java')
-            } else {
-                java.srcDir rootProject.file(target.minecraft in ['1.21.1', '1.21.4', '1.21.8']
+                if (target.minecraft == '1.18.2') {
+                    java.exclude 'dev/wechirok/betterselectivecombat/fabric/BetterSelectiveCombatFabric.java'
+                    java.srcDir rootProject.file('src/fabric-1182/java')
+                }
+            } else if (target.loader == 'neoforge') {
+                java.srcDir rootProject.file(oldMinecraft
                         ? 'src/neoforge-client-legacy/java'
                         : 'src/neoforge-client-modern/java')
+            } else {
+                java.srcDir rootProject.file(target.minecraft == '1.18.2' ? 'src/forge-1182/java' : 'src/forge-modern/java')
             }
             resources.srcDirs = [rootProject.file('src/common/resources'), rootProject.file("src/${target.loader}/resources")]
         }
@@ -98,9 +162,35 @@ subprojects {
                 implementation "net.fabricmc.fabric-api:fabric-api:${target.fabricApi}"
             }
         }
+    } else if (target.loader == 'forge') {
+        legacyForge {
+            enable {
+                if (target.neoForge) {
+                    neoForgeVersion = target.neoForge
+                } else {
+                    forgeVersion = target.forge
+                }
+                disableRecompilation = true
+            }
+            mods {
+                better_selective_combat {
+                    sourceSet sourceSets.main
+                }
+            }
+        }
+        mixin {
+            add sourceSets.main, 'better_selective_combat.refmap.json'
+            config 'better_selective_combat.mixins.json'
+        }
+        dependencies {
+            annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+        }
     } else {
         neoForge {
-            version = target.neoForge
+            enable {
+                version = target.neoForge
+                disableRecompilation = true
+            }
             mods {
                 better_selective_combat {
                     sourceSet sourceSets.main
@@ -131,19 +221,31 @@ subprojects {
             minecraft_version: target.minecraft,
             minecraft_range: target.minecraftRange,
             better_combat_range: target.betterCombatRange,
-            java_compatibility: "JAVA_${target.java}"
+            java_compatibility: "JAVA_${target.java}",
+            fabric_api_id: target.minecraft == '1.18.2' ? 'fabric' : 'fabric-api',
+            fabric_entrypoint: target.minecraft == '1.18.2' ? 'BetterSelectiveCombatFabricLegacy' : 'BetterSelectiveCombatFabric',
+            legacy_mixins: target.legacy && !(target.minecraft in ['1.20.2', '1.20.4']) ? ', "ServerPlayerLanguageMixin"' : '',
+            refmap: target.loader == 'forge' ? '"refmap": "better_selective_combat.refmap.json",' : ''
     ]
 
     processResources {
         inputs.properties resourceProperties
-        filesMatching(['fabric.mod.json', 'META-INF/neoforge.mods.toml', 'better_selective_combat.mixins.json']) {
+        filesMatching(['fabric.mod.json', 'META-INF/neoforge.mods.toml', 'META-INF/mods.toml', 'better_selective_combat.mixins.json']) {
             expand resourceProperties
+        }
+        if (target.minecraft == '1.20.4' && target.loader == 'neoforge') {
+            filesMatching('META-INF/neoforge.mods.toml') {
+                path = 'META-INF/mods.toml'
+            }
         }
     }
 
     tasks.named('jar', Jar).configure {
         manifest {
             attributes('Implementation-Title': 'better-selective-combat', 'Implementation-Version': project.version)
+            if (target.loader == 'forge') {
+                attributes('MixinConfigs': 'better_selective_combat.mixins.json')
+            }
         }
     }
 
@@ -153,18 +255,36 @@ subprojects {
 
     def artifactTask = target.loader == 'fabric' && !target.minecraft.startsWith('26.')
             ? tasks.named('remapJar')
+            : target.loader == 'forge'
+            ? tasks.named('reobfJar')
             : tasks.named('jar')
     project.ext.releaseArtifact = artifactTask.flatMap { it.archiveFile }
 }
 
+def externalTarget = 'mc1202-forge'
+def externalArtifact = layout.projectDirectory.file("versions/1.20.2/forge/build/libs/betterselectivecombat-forge-${version}+1.20.2.jar")
+def externalBuild = tasks.register('buildMc1202Forge', Exec) {
+    workingDir layout.projectDirectory.dir('versions/1.20.2/forge')
+    environment 'JAVA_HOME', javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(17)
+    }.get().metadata.installationPath.asFile.absolutePath
+    commandLine System.getProperty('os.name').toLowerCase().contains('windows')
+            ? ['gradlew.bat', 'clean', 'build', '--no-daemon']
+            : ['bash', 'gradlew', 'clean', 'build', '--no-daemon']
+    onlyIf { externalTarget in selectedTargets }
+}
+def releaseArtifactFor = { name ->
+    name == externalTarget ? providers.provider { externalArtifact.asFile } : project(":${name}").ext.releaseArtifact
+}
+
 tasks.register('buildAll') {
-    dependsOn subprojects.collect { it.tasks.named('build') }
+    dependsOn selectedTargets.collect { it == externalTarget ? externalBuild : project(":${it}").tasks.named('build') }
 }
 
 tasks.register('collectReleaseJars', Sync) {
     dependsOn tasks.named('buildAll')
     into layout.buildDirectory.dir('release')
-    from subprojects.collect { it.ext.releaseArtifact }
+    from selectedTargets.collect { releaseArtifactFor(it) }
 }
 
 def releaseTypeName = (findProperty('release_type') ?: 'release').toString()
@@ -173,7 +293,25 @@ def releaseType = releaseTypeName == 'alpha'
         : releaseTypeName == 'beta'
         ? me.modmuss50.mpp.ReleaseType.BETA
         : me.modmuss50.mpp.ReleaseType.STABLE
-def releaseArtifacts = targets.collect { name, target -> project(":${name}").ext.releaseArtifact }
+def publicationPlan = providers.gradleProperty('publish_plan').map {
+    new groovy.json.JsonSlurper().parse(file(it))
+}.orElse([:]).get()
+def manifestFile = layout.buildDirectory.file('release-manifest.json').get().asFile
+def manifestJson = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson([
+        version: version.toString(), modrinth: 'ARaBurjl', curseforge: '1664386',
+        targets: targets.collectEntries { name, target ->
+            [(name): [file: "betterselectivecombat-${target.loader}-${version}+${target.minecraft}.jar",
+                      games: target.publishVersions, loaders: target.publishLoaders ?: [target.loader]]]
+        }
+]))
+tasks.register('writeReleaseManifest') {
+    inputs.property('manifest', manifestJson)
+    outputs.file(manifestFile)
+    doLast {
+        manifestFile.parentFile.mkdirs()
+        manifestFile.text = manifestJson
+    }
+}
 
 publishMods {
     changelog = providers.environmentVariable('CHANGELOG').orElse("Release ${rootProject.version}")
@@ -193,48 +331,41 @@ publishMods {
     }
 
     targets.each { name, target ->
-        def artifact = project(":${name}").ext.releaseArtifact
+        def artifact = releaseArtifactFor(name)
         def releaseName = "${rootProject.version}+${target.minecraft}-${target.loader}"
 
-        curseforge("curseforge-${name}") {
-            from curseForgeOptions
-            file = artifact
-            displayName = releaseName
-            version = releaseName
-            modLoaders.add(target.loader)
-            target.publishVersions.each { minecraftVersions.add(it) }
-            javaVersions.add(JavaVersion.toVersion(target.java))
-            requires('better-combat-by-daedelus')
-            optional('luckperms')
-            if (target.loader == 'fabric') {
-                requires('fabric-api')
+        if (!publicationPlan || name in publicationPlan.curseforge) {
+            curseforge("curseforge-${name}") {
+                from curseForgeOptions
+                file = artifact
+                displayName = releaseName
+                version = releaseName
+                modLoaders.addAll(target.publishLoaders ?: [target.loader])
+                target.publishVersions.each { minecraftVersions.add(it) }
+                javaVersions.add(JavaVersion.toVersion(target.java))
+                requires('better-combat-by-daedelus')
+                optional('luckperms')
+                if (target.loader == 'fabric') {
+                    requires('fabric-api')
+                }
             }
         }
 
-        modrinth("modrinth-${name}") {
-            from modrinthOptions
-            file = artifact
-            displayName = releaseName
-            version = releaseName
-            modLoaders.add(target.loader)
-            target.publishVersions.each { minecraftVersions.add(it) }
-            requires('better-combat')
-            optional('luckperms')
-            if (target.loader == 'fabric') {
-                requires('fabric-api')
+        if (!publicationPlan || name in publicationPlan.modrinth) {
+            modrinth("modrinth-${name}") {
+                from modrinthOptions
+                file = artifact
+                displayName = releaseName
+                version = releaseName
+                modLoaders.addAll(target.publishLoaders ?: [target.loader])
+                target.publishVersions.each { minecraftVersions.add(it) }
+                requires('better-combat')
+                optional('luckperms')
+                if (target.loader == 'fabric') {
+                    requires('fabric-api')
+                }
             }
         }
-    }
-
-    github {
-        accessToken = providers.environmentVariable('GITHUB_TOKEN')
-        repository = providers.environmentVariable('GITHUB_REPOSITORY').orElse('wechirok/better-selective-combat')
-        commitish = providers.environmentVariable('GITHUB_SHA').orElse('main')
-        tagName = "v${rootProject.version}"
-        displayName = "v${rootProject.version}"
-        version = rootProject.version.toString()
-        file = releaseArtifacts.first()
-        additionalFiles.from(releaseArtifacts.drop(1))
     }
 }
 

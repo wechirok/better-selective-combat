@@ -16,9 +16,17 @@ on:
         description: Release changelog
         required: true
         type: string
+      targets:
+        description: Build targets separated by commas or empty for all
+        required: false
+        type: string
 
 permissions:
   contents: write
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
 
 jobs:
   publish:
@@ -30,9 +38,11 @@ jobs:
           distribution: temurin
           java-version: 25
       - uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb
-      - run: ./gradlew publishMods --no-daemon -Prelease_type=${{ inputs.release_type }}
+      - run: python .github/scripts/publish.py
         env:
           CHANGELOG: ${{ inputs.changelog }}
+          RELEASE_TYPE: ${{ inputs.release_type }}
+          TARGETS: ${{ inputs.targets }}
           CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}

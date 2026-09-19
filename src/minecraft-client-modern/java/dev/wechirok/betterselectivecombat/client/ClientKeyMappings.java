@@ -1,17 +1,17 @@
 package dev.wechirok.betterselectivecombat.client;
 
 import net.minecraft.client.KeyMapping;
-import org.lwjgl.glfw.GLFW;
+import com.mojang.blaze3d.platform.InputConstants;
 
 public final class ClientKeyMappings {
     private static final KeyMapping TOGGLE_ALL = new KeyMapping(
             "key.better_selective_combat.toggle_all",
-            GLFW.GLFW_KEY_PERIOD,
+            InputConstants.KEY_PERIOD,
             KeyMapping.Category.GAMEPLAY
     );
     private static final KeyMapping TOGGLE_ITEM = new KeyMapping(
             "key.better_selective_combat.toggle_item",
-            GLFW.GLFW_KEY_COMMA,
+            InputConstants.KEY_COMMA,
             KeyMapping.Category.GAMEPLAY
     );
 

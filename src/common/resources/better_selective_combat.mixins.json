@@ -3,9 +3,10 @@
   "minVersion": "0.8",
   "package": "dev.wechirok.betterselectivecombat.mixin",
   "compatibilityLevel": "${java_compatibility}",
+  ${refmap}
   "mixins": [
     "WeaponRegistryMixin",
-    "WeaponRegistryInvoker"
+    "WeaponRegistryInvoker"${legacy_mixins}
   ],
   "client": [
     "client.MinecraftClientMixin",
