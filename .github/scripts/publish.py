@@ -6,12 +6,13 @@ import urllib.request
 from pathlib import Path
 
 
-def request(url, token=None):
+def request(url, token=None, method="GET"):
     headers = {"User-Agent": "Wechirok-release-publisher"}
     if token:
         headers["Authorization"] = token
-    with urllib.request.urlopen(urllib.request.Request(url, headers=headers), timeout=60) as response:
-        return json.load(response)
+    with urllib.request.urlopen(urllib.request.Request(url, headers=headers, method=method), timeout=60) as response:
+        body = response.read()
+        return json.loads(body) if body else None
 
 
 def inventories(manifest, repository, tag):
@@ -64,6 +65,10 @@ def main():
     repository = os.environ["GITHUB_REPOSITORY"]
     tag = "v" + manifest["version"]
     existing, release = inventories(manifest, repository, tag)
+    replacements = selected_targets(manifest, os.environ.get("REPLACE_TARGETS", ""))
+    if replacements:
+        replace_existing(manifest, repository, release, replacements, existing)
+        existing, release = inventories(manifest, repository, tag)
     plan = missing_targets(manifest, existing)
     for platform, names in plan.items():
         print(f"{platform}: {len(names)} missing files", flush=True)
@@ -115,6 +120,49 @@ def missing_targets(manifest, existing):
         or manifest["targets"][name]["file"] not in existing["modrinth"]
     ]
     return missing
+
+
+def selected_targets(manifest, value):
+    selected = {name for name in value.split(",") if name}
+    unknown = selected - manifest["targets"].keys()
+    if unknown:
+        raise ValueError(f"Unknown replacement targets: {sorted(unknown)}")
+    return selected
+
+
+def replace_existing(manifest, repository, release, replacements, existing):
+    filenames = {manifest["targets"][name]["file"] for name in replacements}
+    blocked = sorted(filenames & existing["curseforge"])
+    if blocked:
+        raise RuntimeError(f"curseforge: remove files before replacement: {blocked}")
+    versions = request(
+        f"https://api.modrinth.com/v2/project/{manifest['modrinth']}/version",
+        os.environ["MODRINTH_TOKEN"],
+    )
+    for version in versions:
+        if any(file["filename"] in filenames for file in version["files"]):
+            request(
+                f"https://api.modrinth.com/v2/version/{version['id']}",
+                os.environ["MODRINTH_TOKEN"],
+                "DELETE",
+            )
+    if release:
+        page = 1
+        while True:
+            assets = request(
+                f"https://api.github.com/repos/{repository}/releases/{release['id']}/assets?per_page=100&page={page}",
+                f"Bearer {os.environ['GITHUB_TOKEN']}",
+            )
+            for asset in assets:
+                if asset["name"] in filenames:
+                    request(
+                        f"https://api.github.com/repos/{repository}/releases/assets/{asset['id']}",
+                        f"Bearer {os.environ['GITHUB_TOKEN']}",
+                        "DELETE",
+                    )
+            if len(assets) < 100:
+                break
+            page += 1
 
 
 if __name__ == "__main__":

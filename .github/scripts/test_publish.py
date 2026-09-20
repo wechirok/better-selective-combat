@@ -1,7 +1,7 @@
 import unittest
-from unittest.mock import patch
+from unittest.mock import call, patch
 
-from publish import inventories, missing_targets
+from publish import inventories, missing_targets, replace_existing, selected_targets
 
 
 class PublicationTests(unittest.TestCase):
@@ -54,6 +54,45 @@ class PublicationTests(unittest.TestCase):
     def test_failed_inventory_does_not_become_an_empty_release(self, request):
         with self.assertRaises(PermissionError):
             inventories({"modrinth": "project", "curseforge": "123"}, "owner/repo", "v1")
+
+    def test_unknown_replacement_target_is_rejected(self):
+        with self.assertRaises(ValueError):
+            selected_targets({"targets": {"fabric": {}}}, "forge")
+
+    def test_curseforge_file_blocks_replacement_before_deletion(self):
+        manifest = {
+            "modrinth": "project",
+            "targets": {"forge": {"file": "forge.jar"}},
+        }
+        existing = {"github": {"forge.jar"}, "modrinth": {"forge.jar"}, "curseforge": {"forge.jar"}}
+        with self.assertRaises(RuntimeError), patch("publish.request") as request:
+            replace_existing(manifest, "owner/repo", {"id": 1}, {"forge"}, existing)
+        request.assert_not_called()
+
+    @patch.dict("os.environ", {"MODRINTH_TOKEN": "modrinth", "GITHUB_TOKEN": "github"})
+    @patch("publish.request")
+    def test_replacement_deletes_matching_modrinth_version_and_github_asset(self, request):
+        manifest = {
+            "modrinth": "project",
+            "targets": {"forge": {"file": "forge.jar"}},
+        }
+        existing = {"github": {"forge.jar"}, "modrinth": {"forge.jar"}, "curseforge": set()}
+        request.side_effect = [
+            [{"id": "version", "files": [{"filename": "forge.jar"}]}],
+            None,
+            [{"id": 2, "name": "forge.jar"}],
+            None,
+        ]
+        replace_existing(manifest, "owner/repo", {"id": 1}, {"forge"}, existing)
+        self.assertEqual(
+            request.call_args_list,
+            [
+                call("https://api.modrinth.com/v2/project/project/version", "modrinth"),
+                call("https://api.modrinth.com/v2/version/version", "modrinth", "DELETE"),
+                call("https://api.github.com/repos/owner/repo/releases/1/assets?per_page=100&page=1", "Bearer github"),
+                call("https://api.github.com/repos/owner/repo/releases/assets/2", "Bearer github", "DELETE"),
+            ],
+        )
 
 
 if __name__ == "__main__":

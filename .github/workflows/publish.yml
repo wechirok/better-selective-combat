@@ -20,6 +20,10 @@ on:
         description: Build targets separated by commas or empty for all
         required: false
         type: string
+      replace_targets:
+        description: Existing targets to replace after removing their CurseForge files
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -43,6 +47,7 @@ jobs:
           CHANGELOG: ${{ inputs.changelog }}
           RELEASE_TYPE: ${{ inputs.release_type }}
           TARGETS: ${{ inputs.targets }}
+          REPLACE_TARGETS: ${{ inputs.replace_targets }}
           CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
