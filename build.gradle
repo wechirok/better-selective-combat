@@ -225,12 +225,15 @@ subprojects {
             fabric_api_id: target.minecraft == '1.18.2' ? 'fabric' : 'fabric-api',
             fabric_entrypoint: target.minecraft == '1.18.2' ? 'BetterSelectiveCombatFabricLegacy' : 'BetterSelectiveCombatFabric',
             legacy_mixins: target.legacy && !(target.minecraft in ['1.20.2', '1.20.4']) ? ', "ServerPlayerLanguageMixin"' : '',
-            refmap: target.loader == 'forge' ? '"refmap": "better_selective_combat.refmap.json",' : ''
+            refmap: target.loader == 'forge' ? '"refmap": "better_selective_combat.refmap.json",' : '',
+            pack_format: ['1.18.2': 8, '1.19.2': 9, '1.19.3': 12, '1.19.4': 13,
+                          '1.20.1': 15, '1.20.2': 18].get(target.minecraft, 15)
     ]
 
     processResources {
         inputs.properties resourceProperties
-        filesMatching(['fabric.mod.json', 'META-INF/neoforge.mods.toml', 'META-INF/mods.toml', 'better_selective_combat.mixins.json']) {
+        filesMatching(['fabric.mod.json', 'META-INF/neoforge.mods.toml', 'META-INF/mods.toml',
+                       'better_selective_combat.mixins.json', 'pack.mcmeta']) {
             expand resourceProperties
         }
         if (target.minecraft == '1.20.4' && target.loader == 'neoforge') {
