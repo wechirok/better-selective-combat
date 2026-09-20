@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import call, patch
 
-from publish import inventories, missing_targets, replace_existing, selected_targets
+from publish import add_curseforge_retries, inventories, missing_targets, replace_existing, selected_targets
 
 
 class PublicationTests(unittest.TestCase):
@@ -58,6 +58,18 @@ class PublicationTests(unittest.TestCase):
     def test_unknown_replacement_target_is_rejected(self):
         with self.assertRaises(ValueError):
             selected_targets({"targets": {"fabric": {}}}, "forge")
+
+    def test_curseforge_retry_adds_only_missing_files(self):
+        manifest = {
+            "targets": {
+                "missing": {"file": "missing.jar"},
+                "present": {"file": "present.jar"},
+            },
+        }
+        existing = {"curseforge": {"present.jar"}}
+        plan = {"curseforge": []}
+        add_curseforge_retries(manifest, existing, plan, {"missing", "present"})
+        self.assertEqual(plan["curseforge"], ["missing"])
 
     def test_curseforge_file_blocks_replacement_before_deletion(self):
         manifest = {

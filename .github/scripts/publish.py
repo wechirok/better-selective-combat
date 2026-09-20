@@ -70,6 +70,8 @@ def main():
         replace_existing(manifest, repository, release, replacements, existing)
         existing, release = inventories(manifest, repository, tag)
     plan = missing_targets(manifest, existing)
+    retries = selected_targets(manifest, os.environ.get("RETRY_CURSEFORGE_TARGETS", ""))
+    add_curseforge_retries(manifest, existing, plan, retries)
     for platform, names in plan.items():
         print(f"{platform}: {len(names)} missing files", flush=True)
     selected = sorted(set().union(*plan.values()))
@@ -77,12 +79,15 @@ def main():
         return
     plan_file = Path("build/publish-plan.json")
     plan_file.write_text(json.dumps(plan))
-    subprocess.run([
+    command = [
         "./gradlew", "--no-daemon", "--console=plain", "publishMods",
         "-Ptargets=" + ",".join(selected),
         "-Ppublish_plan=" + str(plan_file.resolve()),
         "-Prelease_type=" + os.environ.get("RELEASE_TYPE", "release"),
-    ], check=True)
+    ]
+    if plan["curseforge"]:
+        command.append("--max-workers=1")
+    subprocess.run(command, check=True)
     if plan["github"]:
         if release is None:
             notes = Path("build/release-notes.md")
@@ -120,6 +125,14 @@ def missing_targets(manifest, existing):
         or manifest["targets"][name]["file"] not in existing["modrinth"]
     ]
     return missing
+
+
+def add_curseforge_retries(manifest, existing, plan, retries):
+    missing = {
+        name for name in retries
+        if manifest["targets"][name]["file"] not in existing["curseforge"]
+    }
+    plan["curseforge"] = sorted(set(plan["curseforge"]) | missing)
 
 
 def selected_targets(manifest, value):

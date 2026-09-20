@@ -24,6 +24,10 @@ on:
         description: Existing targets to replace after removing their CurseForge files
         required: false
         type: string
+      retry_curseforge_targets:
+        description: Missing CurseForge targets to retry without republishing elsewhere
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -48,6 +52,7 @@ jobs:
           RELEASE_TYPE: ${{ inputs.release_type }}
           TARGETS: ${{ inputs.targets }}
           REPLACE_TARGETS: ${{ inputs.replace_targets }}
+          RETRY_CURSEFORGE_TARGETS: ${{ inputs.retry_curseforge_targets }}
           CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
