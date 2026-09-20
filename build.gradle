@@ -375,3 +375,9 @@ publishMods {
 tasks.named('publishMods') {
     dependsOn tasks.named('collectReleaseJars')
 }
+
+tasks.matching {
+    it.name == "publishCurseforge-${externalTarget}" || it.name == "publishModrinth-${externalTarget}"
+}.configureEach {
+    dependsOn externalBuild
+}
