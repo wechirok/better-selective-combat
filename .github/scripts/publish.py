@@ -105,10 +105,16 @@ def missing_targets(manifest, existing):
     filenames = [target["file"] for target in manifest["targets"].values()]
     if len(filenames) != len(set(filenames)):
         raise ValueError("Release targets contain duplicate filenames")
-    return {
+    missing = {
         platform: [name for name, target in manifest["targets"].items() if target["file"] not in files]
         for platform, files in existing.items()
     }
+    missing["curseforge"] = [
+        name for name in missing["curseforge"]
+        if manifest["targets"][name]["file"] not in existing["github"]
+        or manifest["targets"][name]["file"] not in existing["modrinth"]
+    ]
+    return missing
 
 
 if __name__ == "__main__":

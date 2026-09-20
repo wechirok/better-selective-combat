@@ -10,8 +10,18 @@ class PublicationTests(unittest.TestCase):
         existing = {"github": {"fabric.jar"}, "modrinth": {"fabric.jar", "forge.jar"}, "curseforge": set()}
         self.assertEqual(
             missing_targets(manifest, existing),
-            {"github": ["forge"], "modrinth": [], "curseforge": ["fabric", "forge"]},
+            {"github": ["forge"], "modrinth": [], "curseforge": ["forge"]},
         )
+
+    def test_curseforge_processing_file_is_not_uploaded_twice(self):
+        manifest = {"targets": {"fabric": {"file": "fabric.jar"}}}
+        existing = {"github": {"fabric.jar"}, "modrinth": {"fabric.jar"}, "curseforge": set()}
+        self.assertEqual(missing_targets(manifest, existing)["curseforge"], [])
+
+    def test_curseforge_missing_file_is_retried_without_completion_marker(self):
+        manifest = {"targets": {"fabric": {"file": "fabric.jar"}}}
+        existing = {"github": set(), "modrinth": {"fabric.jar"}, "curseforge": set()}
+        self.assertEqual(missing_targets(manifest, existing)["curseforge"], ["fabric"])
 
     def test_complete_release_has_no_uploads(self):
         manifest = {"targets": {"fabric": {"file": "fabric.jar"}}}
