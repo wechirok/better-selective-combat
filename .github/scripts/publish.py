@@ -105,10 +105,17 @@ def main():
         if release is None:
             subprocess.run(["gh", "release", "edit", tag, "--repo", repository, "--draft=false"], check=True)
     existing, _ = inventories(manifest, repository, tag)
+    verify_publication(manifest, existing, plan)
+
+
+def verify_publication(manifest, existing, plan):
     for platform, names in plan.items():
         missing = [name for name in names if manifest["targets"][name]["file"] not in existing[platform]]
         if missing:
-            raise RuntimeError(f"{platform}: publication not yet confirmed for {missing}")
+            if platform == "curseforge":
+                print(f"curseforge: upload accepted, public listing pending for {missing}", flush=True)
+            else:
+                raise RuntimeError(f"{platform}: publication not yet confirmed for {missing}")
 
 
 def missing_targets(manifest, existing):

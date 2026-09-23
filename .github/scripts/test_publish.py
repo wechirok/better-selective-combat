@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import call, patch
 
-from publish import add_curseforge_retries, inventories, missing_targets, replace_existing, selected_targets
+from publish import add_curseforge_retries, inventories, missing_targets, replace_existing, selected_targets, verify_publication
 
 
 class PublicationTests(unittest.TestCase):
@@ -27,6 +27,23 @@ class PublicationTests(unittest.TestCase):
         manifest = {"targets": {"fabric": {"file": "fabric.jar"}}}
         existing = {platform: {"fabric.jar"} for platform in ["github", "modrinth", "curseforge"]}
         self.assertTrue(all(not pending for pending in missing_targets(manifest, existing).values()))
+
+    def test_accepted_curseforge_upload_can_await_public_listing(self):
+        manifest = {"targets": {"fabric": {"file": "fabric.jar"}}}
+        existing = {"github": {"fabric.jar"}, "modrinth": {"fabric.jar"}, "curseforge": set()}
+        plan = {"github": ["fabric"], "modrinth": ["fabric"], "curseforge": ["fabric"]}
+        with patch("builtins.print") as output:
+            verify_publication(manifest, existing, plan)
+        output.assert_called_once_with(
+            "curseforge: upload accepted, public listing pending for ['fabric']", flush=True
+        )
+
+    def test_missing_modrinth_upload_still_fails_confirmation(self):
+        manifest = {"targets": {"fabric": {"file": "fabric.jar"}}}
+        existing = {"github": {"fabric.jar"}, "modrinth": set(), "curseforge": set()}
+        plan = {"github": ["fabric"], "modrinth": ["fabric"], "curseforge": ["fabric"]}
+        with self.assertRaisesRegex(RuntimeError, "modrinth: publication not yet confirmed"):
+            verify_publication(manifest, existing, plan)
 
     def test_duplicate_target_filenames_are_rejected(self):
         manifest = {"targets": {"first": {"file": "same.jar"}, "second": {"file": "same.jar"}}}
