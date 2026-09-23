@@ -8,7 +8,7 @@ plugins {
 }
 
 group = 'dev.wechirok.betterselectivecombat'
-version = '1.1.0'
+version = '1.2.0'
 
 def targets = [
         'mc1211-fabric'   : [loader: 'fabric', minecraft: '1.21.1', publishVersions: ['1.21.1'], minecraftRange: '=1.21.1', java: 21, fabricApi: '0.116.15+1.21.1', neoForge: null, betterCombat: '2.4.0+1.21.1', betterCombatRange: '>=2.4.0 <3.0.0'],
@@ -65,7 +65,13 @@ legacyTargets.each { name, spec ->
             fabricApi: '0.161.0+26.3', neoForge: '26.3.0.7-beta', betterCombat: '3.2.2+26.3'
     ]
 }
-def selectedTargets = providers.gradleProperty('targets').map { it.split(',').toList() }.orElse(targets.keySet().toList()).get()
+def releaseTargets = ['mc1201-fabric', 'mc1201-forge', 'mc1211-fabric', 'mc1211-neoforge']
+['fabric', 'forge'].each { loader ->
+    targets["mc1201-${loader}"].publishVersions = ['1.20.1']
+    targets["mc1201-${loader}"].minecraftRange = loader == 'fabric' ? '=1.20.1' : '[1.20.1]'
+    targets["mc1201-${loader}"].publishLoaders = [loader]
+}
+def selectedTargets = providers.gradleProperty('targets').map { it.split(',').toList() }.orElse(releaseTargets).get()
 if (!targets.keySet().containsAll(selectedTargets)) {
     throw new GradleException("Unknown build targets: ${selectedTargets - targets.keySet()}")
 }
@@ -73,6 +79,7 @@ targets = targets.findAll { name, target -> name in selectedTargets }
 
 subprojects {
     def target = targets[project.name]
+    def personalSync = project.name in releaseTargets
     group = rootProject.group
     version = rootProject.version
 
@@ -147,6 +154,16 @@ subprojects {
                 java.srcDir rootProject.file(target.minecraft == '1.18.2' ? 'src/forge-1182/java' : 'src/forge-modern/java')
             }
             resources.srcDirs = [rootProject.file('src/common/resources'), rootProject.file("src/${target.loader}/resources")]
+            if (personalSync) {
+                java.srcDir rootProject.file('src/sync-common/java')
+                java.srcDir rootProject.file("src/sync-${target.loader}/java")
+                if (target.loader == 'fabric') {
+                    java.srcDir rootProject.file("src/sync-fabric-${target.minecraft}/java")
+                }
+                if (target.minecraft == '1.21.1') {
+                    java.srcDir rootProject.file('src/sync-payload/java')
+                }
+            }
         }
     }
 
@@ -209,6 +226,36 @@ subprojects {
     dependencies {
         compileOnly "maven.modrinth:better-combat:${target.betterCombat}-${target.loader}"
         compileOnly "net.luckperms:api:5.5"
+        if (personalSync && target.loader != 'forge') {
+            testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
+            testImplementation 'org.mockito:mockito-core:5.14.2'
+            testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.11.4'
+        }
+        if (personalSync && target.loader == 'neoforge') {
+            testImplementation "maven.modrinth:better-combat:${target.betterCombat}-${target.loader}"
+            testRuntimeOnly 'maven.modrinth:playeranimator:2.0.4+1.21.1-forge'
+            testRuntimeOnly 'maven.modrinth:cloth-config:15.0.140+neoforge'
+        }
+    }
+
+    if (personalSync && target.loader != 'forge') {
+        sourceSets.test.java.srcDir rootProject.file('src/test/java')
+        if (target.loader == 'neoforge') {
+            sourceSets.test.java.srcDir rootProject.file('src/test-neoforge/java')
+            neoForge.unitTest {
+                enable()
+                testedMod = neoForge.mods.better_selective_combat
+            }
+        }
+        def testDirectory = new File(System.getProperty('java.io.tmpdir'), "bsc-tests-${project.name}")
+        tasks.withType(Test).configureEach {
+            useJUnitPlatform()
+            maxHeapSize = '1G'
+            workingDir testDirectory
+            doFirst {
+                testDirectory.mkdirs()
+            }
+        }
     }
 
     tasks.withType(JavaCompile).configureEach {
@@ -226,6 +273,8 @@ subprojects {
             fabric_entrypoint: target.minecraft == '1.18.2' ? 'BetterSelectiveCombatFabricLegacy' : 'BetterSelectiveCombatFabric',
             legacy_mixins: target.legacy && !(target.minecraft in ['1.20.2', '1.20.4']) ? ', "ServerPlayerLanguageMixin"' : '',
             refmap: target.loader == 'forge' ? '"refmap": "better_selective_combat.refmap.json",' : '',
+            sync_mixins: personalSync ? ', "WeaponRegistryPreferenceMixin"' : '',
+            sync_client_mixins: personalSync ? ', "client.CombatSelectionClientMixin"' : '',
             pack_format: ['1.18.2': 8, '1.19.2': 9, '1.19.3': 12, '1.19.4': 13,
                           '1.20.1': 15, '1.20.2': 18].get(target.minecraft, 15)
     ]
@@ -239,6 +288,19 @@ subprojects {
         if (target.minecraft == '1.20.4' && target.loader == 'neoforge') {
             filesMatching('META-INF/neoforge.mods.toml') {
                 path = 'META-INF/mods.toml'
+            }
+        }
+    }
+
+    if (personalSync && target.loader == 'fabric') {
+        def fabricMetadata = layout.buildDirectory.file('resources/main/fabric.mod.json')
+        processResources {
+            doLast {
+                def metadataFile = fabricMetadata.get().asFile
+                def metadata = new groovy.json.JsonSlurper().parse(metadataFile)
+                metadata.entrypoints.main.add('dev.wechirok.betterselectivecombat.network.FabricCombatNetworking')
+                metadata.entrypoints.client.add('dev.wechirok.betterselectivecombat.network.FabricCombatNetworkingClient')
+                metadataFile.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(metadata))
             }
         }
     }

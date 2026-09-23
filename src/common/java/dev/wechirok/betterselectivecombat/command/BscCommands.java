@@ -6,7 +6,9 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.wechirok.betterselectivecombat.BetterSelectiveCombat;
+import dev.wechirok.betterselectivecombat.client.ItemIds;
 import dev.wechirok.betterselectivecombat.lang.Translations;
 import dev.wechirok.betterselectivecombat.registry.BetterCombatRegistryBridge;
 import dev.wechirok.betterselectivecombat.selection.WeaponId;
@@ -32,14 +34,20 @@ public final class BscCommands {
                 .then(Commands.literal("help")
                         .executes(BscCommands::showHelp))
                 .then(Commands.literal("disable")
+                        .then(Commands.literal("held")
+                                .executes(context -> disable(context, true)))
                         .then(Commands.argument("weapon_id", StringArgumentType.greedyString())
                                 .suggests(BscCommands::suggestWeapons)
                                 .executes(BscCommands::disable)))
                 .then(Commands.literal("enable")
+                        .then(Commands.literal("held")
+                                .executes(context -> enable(context, true)))
                         .then(Commands.argument("weapon_id", StringArgumentType.greedyString())
                                 .suggests(BscCommands::suggestDisabledWeapons)
                                 .executes(BscCommands::enable)))
                 .then(Commands.literal("status")
+                        .then(Commands.literal("held")
+                                .executes(context -> status(context, true)))
                         .then(Commands.argument("weapon_id", StringArgumentType.greedyString())
                                 .suggests(BscCommands::suggestWeapons)
                                 .executes(BscCommands::status)))
@@ -71,19 +79,29 @@ public final class BscCommands {
         success(source, "/bsc " + text(source, "bsc.help.root"));
         success(source, "/bsc help " + text(source, "bsc.help.help"));
         success(source, "/bsc disable <weapon_id> " + text(source, "bsc.help.disable"));
+        success(source, "/bsc disable held " + text(source, "bsc.help.disable"));
         success(source, "/bsc enable <weapon_id> " + text(source, "bsc.help.enable"));
+        success(source, "/bsc enable held " + text(source, "bsc.help.enable"));
         success(source, "/bsc status <weapon_id> " + text(source, "bsc.help.status"));
+        success(source, "/bsc status held " + text(source, "bsc.help.status"));
         success(source, "/bsc list [page] " + text(source, "bsc.help.list"));
         success(source, "/bsc reload " + text(source, "bsc.help.reload"));
         return 1;
     }
 
-    private static int disable(CommandContext<CommandSourceStack> context) {
+    private static int disable(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        return disable(context, false);
+    }
+
+    private static int disable(CommandContext<CommandSourceStack> context, boolean held) throws CommandSyntaxException {
         CommandSourceStack source = context.getSource();
         if (!canManage(source)) {
             return failure(source, text(source, "bsc.error.permission"));
         }
-        String id = WeaponId.normalize(StringArgumentType.getString(context, "weapon_id"));
+        String id = weaponId(context, held);
+        if (id == null) {
+            return 0;
+        }
         WeaponSelectionService.ChangeResult result = BetterSelectiveCombat.selections().disable(id);
         return switch (result) {
             case CHANGED -> changed(source, "bsc.disable.success", id);
@@ -93,12 +111,19 @@ public final class BscCommands {
         };
     }
 
-    private static int enable(CommandContext<CommandSourceStack> context) {
+    private static int enable(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        return enable(context, false);
+    }
+
+    private static int enable(CommandContext<CommandSourceStack> context, boolean held) throws CommandSyntaxException {
         CommandSourceStack source = context.getSource();
         if (!canManage(source)) {
             return failure(source, text(source, "bsc.error.permission"));
         }
-        String id = WeaponId.normalize(StringArgumentType.getString(context, "weapon_id"));
+        String id = weaponId(context, held);
+        if (id == null) {
+            return 0;
+        }
         WeaponSelectionService.ChangeResult result = BetterSelectiveCombat.selections().enable(id);
         return switch (result) {
             case CHANGED -> changed(source, "bsc.enable.success", id);
@@ -108,15 +133,35 @@ public final class BscCommands {
         };
     }
 
-    private static int status(CommandContext<CommandSourceStack> context) {
+    private static int status(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        return status(context, false);
+    }
+
+    private static int status(CommandContext<CommandSourceStack> context, boolean held) throws CommandSyntaxException {
         CommandSourceStack source = context.getSource();
-        String id = WeaponId.normalize(StringArgumentType.getString(context, "weapon_id"));
+        String id = weaponId(context, held);
+        if (id == null) {
+            return 0;
+        }
         if (!WeaponId.isValid(id)) {
             return failure(source, text(source, "bsc.error.invalid_id", id));
         }
         String key = BetterSelectiveCombat.selections().isDisabled(id) ? "bsc.status.disabled" : "bsc.status.enabled";
         success(source, text(source, key, id));
         return 1;
+    }
+
+    private static String weaponId(CommandContext<CommandSourceStack> context, boolean held) throws CommandSyntaxException {
+        if (!held) {
+            return WeaponId.normalize(StringArgumentType.getString(context, "weapon_id"));
+        }
+        CommandSourceStack source = context.getSource();
+        var stack = source.getPlayerOrException().getMainHandItem();
+        if (stack.isEmpty()) {
+            failure(source, text(source, "bsc.client.item.empty"));
+            return null;
+        }
+        return ItemIds.get(stack);
     }
 
     private static int list(CommandContext<CommandSourceStack> context, int page) {

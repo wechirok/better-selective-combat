@@ -6,11 +6,11 @@
   ${refmap}
   "mixins": [
     "WeaponRegistryMixin",
-    "WeaponRegistryInvoker"${legacy_mixins}
+    "WeaponRegistryInvoker"${legacy_mixins}${sync_mixins}
   ],
   "client": [
     "client.MinecraftClientMixin",
-    "client.WeaponRegistryClientMixin"
+    "client.WeaponRegistryClientMixin"${sync_client_mixins}
   ],
   "injectors": {
     "defaultRequire": 1
