@@ -33,7 +33,7 @@ These commands manage which weapons bypass Better Combat for all players.
 
 ## Known issues
 
-- On servers without BSC, the personal `,` toggle cannot restore offhand use with a two-handed weapon. The server still applies Better Combat's two-handed restriction. Install BSC on both the client and server for offhand use to work with personally disabled weapons.
+- On servers without BSC, disabling Better Combat for a two-handed weapon on the client cannot restore offhand use. The server still applies Better Combat’s two-handed restriction, so BSC must be installed on both the client and server for the offhand fix to work.
 
 ## Config
 
