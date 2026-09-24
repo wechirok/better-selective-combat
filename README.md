@@ -21,12 +21,19 @@ These commands manage which weapons bypass Better Combat for all players.
 | `/bsc`                     | Show the mod version                          |
 | `/bsc help`                | Show available commands                       |
 | `/bsc disable <weapon_id>` | Disable Better Combat for a weapon            |
+| `/bsc disable held`        | Disable Better Combat for the held item       |
 | `/bsc enable <weapon_id>`  | Re-enable Better Combat for a disabled weapon |
+| `/bsc enable held`         | Re-enable Better Combat for the held item     |
 | `/bsc status <weapon_id>`  | Show whether a weapon is disabled             |
+| `/bsc status held`         | Show whether the held item is disabled        |
 | `/bsc list [page]`         | List disabled weapons                         |
 | `/bsc reload`              | Reload the multiplayer config file            |
 
 `disable`, `enable`, and `reload` require `better_selective_combat.manage` through [LuckPerms](https://github.com/LuckPerms/LuckPerms) or op permission.
+
+## Known issues
+
+- On servers without BSC, the personal `,` toggle cannot restore offhand use with a two-handed weapon. The server still applies Better Combat's two-handed restriction. Install BSC on both the client and server for offhand use to work with personally disabled weapons.
 
 ## Config
 
