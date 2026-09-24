@@ -22,16 +22,11 @@ public final class ForgeCombatNetworking {
     private static final SimpleChannel CHANNEL = NetworkRegistry.ChannelBuilder
             .named(new ResourceLocation(BetterSelectiveCombat.MOD_ID, "selection_v1"))
             .networkProtocolVersion(() -> "1")
-            .clientAcceptedVersions(ForgeCombatNetworking::compatible)
-            .serverAcceptedVersions(ForgeCombatNetworking::compatible)
+            .clientAcceptedVersions(version -> true)
+            .serverAcceptedVersions(version -> true)
             .simpleChannel();
 
     private ForgeCombatNetworking() {
-    }
-
-    private static boolean compatible(String version) {
-        return "1".equals(version) || NetworkRegistry.ABSENT.equals(version)
-                || NetworkRegistry.ACCEPTVANILLA.equals(version);
     }
 
     @SubscribeEvent
