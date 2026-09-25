@@ -31,9 +31,9 @@ These commands manage which weapons bypass Better Combat for all players.
 
 `disable`, `enable`, and `reload` require `better_selective_combat.manage` through [LuckPerms](https://github.com/LuckPerms/LuckPerms) or op permission.
 
-## Known issues
-
-- On servers without BSC, disabling Better Combat for a two-handed weapon on the client cannot restore offhand use. The server still applies Better Combat’s two-handed restriction, so BSC must be installed on both the client and server for the offhand fix to work.
+> [!NOTE]
+> ## Known issues
+> - On servers without BSC, disabling Better Combat for a two-handed weapon on the client cannot restore offhand use. The server still applies Better Combat’s two-handed restriction, so BSC must be installed on both the client and server for the offhand fix to work.
 
 ## Config
 
