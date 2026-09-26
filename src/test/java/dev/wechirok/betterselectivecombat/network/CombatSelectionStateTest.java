@@ -52,6 +52,7 @@ class CombatSelectionStateTest {
         when(player.getServer()).thenReturn(server);
         when(player.getUUID()).thenReturn(uuid);
         when(player.getInventory()).thenReturn(inventory);
+        when(player.getOffhandItem()).thenReturn(offhand);
         when(players.getPlayer(uuid)).thenReturn(player);
         ids = mockStatic(ItemIds.class);
         ids.when(() -> ItemIds.get(main)).thenReturn("example:greatsword");
@@ -81,6 +82,7 @@ class CombatSelectionStateTest {
         otherInventory.offhand.set(0, otherOffhand);
         UUID otherId = UUID.randomUUID();
         when(other.getInventory()).thenReturn(otherInventory);
+        when(other.getOffhandItem()).thenReturn(otherOffhand);
         when(other.getUUID()).thenReturn(otherId);
         when(players.getPlayer(otherId)).thenReturn(other);
         ids.when(() -> ItemIds.get(otherWeapon)).thenReturn("example:greatsword");
