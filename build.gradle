@@ -65,13 +65,14 @@ legacyTargets.each { name, spec ->
             fabricApi: '0.161.0+26.3', neoForge: '26.3.0.7-beta', betterCombat: '3.2.2+26.3'
     ]
 }
-def releaseTargets = ['mc1201-fabric', 'mc1201-forge', 'mc1211-fabric', 'mc1211-neoforge']
+def testedTargets = ['mc1201-fabric', 'mc1201-forge', 'mc1211-fabric', 'mc1211-neoforge']
 ['fabric', 'forge'].each { loader ->
     targets["mc1201-${loader}"].publishVersions = ['1.20.1']
     targets["mc1201-${loader}"].minecraftRange = loader == 'fabric' ? '=1.20.1' : '[1.20.1]'
     targets["mc1201-${loader}"].publishLoaders = [loader]
 }
-def selectedTargets = providers.gradleProperty('targets').map { it.split(',').toList() }.orElse(releaseTargets).get()
+def selectedTargets = providers.gradleProperty('targets').map { it.split(',').toList() }
+        .orElse(targets.keySet().toList()).get()
 if (!targets.keySet().containsAll(selectedTargets)) {
     throw new GradleException("Unknown build targets: ${selectedTargets - targets.keySet()}")
 }
@@ -79,7 +80,7 @@ targets = targets.findAll { name, target -> name in selectedTargets }
 
 subprojects {
     def target = targets[project.name]
-    def personalSync = project.name in releaseTargets
+    def personalSync = true
     group = rootProject.group
     version = rootProject.version
 
@@ -156,12 +157,28 @@ subprojects {
             resources.srcDirs = [rootProject.file('src/common/resources'), rootProject.file("src/${target.loader}/resources")]
             if (personalSync) {
                 java.srcDir rootProject.file('src/sync-common/java')
-                java.srcDir rootProject.file("src/sync-${target.loader}/java")
-                if (target.loader == 'fabric') {
-                    java.srcDir rootProject.file("src/sync-fabric-${target.minecraft}/java")
+                java.srcDir rootProject.file(target.minecraft in ['1.21.8', '1.21.10', '1.21.11', '26.1.2', '26.2', '26.3']
+                        ? 'src/sync-player-modern/java' : 'src/sync-player-legacy/java')
+                java.srcDir rootProject.file(target.minecraft == '1.18.2' && target.loader == 'forge'
+                        ? 'src/sync-forge-1182/java'
+                        : target.minecraft == '1.20.4' && target.loader == 'neoforge'
+                        ? 'src/sync-neoforge-1204/java'
+                        : target.loader == 'neoforge' && target.minecraft in ['1.21.8', '1.21.10']
+                        ? 'src/sync-neoforge-1218/java'
+                        : target.loader == 'neoforge' && (target.minecraft.startsWith('26.') || target.minecraft == '1.21.11')
+                        ? 'src/sync-neoforge-26/java' : "src/sync-${target.loader}/java")
+                if (target.loader in ['forge', 'neoforge']) {
+                    java.srcDir rootProject.file("src/sync-${target.loader}-mixin/java")
                 }
-                if (target.minecraft == '1.21.1') {
-                    java.srcDir rootProject.file('src/sync-payload/java')
+                if (target.loader == 'fabric') {
+                    java.srcDir rootProject.file(target.legacy
+                            ? 'src/sync-fabric-1.20.1/java'
+                            : target.minecraft.startsWith('26.')
+                            ? 'src/sync-fabric-26/java' : 'src/sync-fabric-1.21.1/java')
+                }
+                if (!target.legacy) {
+                    java.srcDir rootProject.file(target.minecraft in ['1.21.11', '26.1.2', '26.2', '26.3']
+                            ? 'src/sync-payload-identifier/java' : 'src/sync-payload/java')
                 }
             }
         }
@@ -226,19 +243,19 @@ subprojects {
     dependencies {
         compileOnly "maven.modrinth:better-combat:${target.betterCombat}-${target.loader}"
         compileOnly "net.luckperms:api:5.5"
-        if (personalSync && target.loader != 'forge') {
+        if (project.name in testedTargets && target.loader != 'forge') {
             testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
             testImplementation 'org.mockito:mockito-core:5.14.2'
             testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.11.4'
         }
-        if (personalSync && target.loader == 'neoforge') {
+        if (project.name in testedTargets && target.loader == 'neoforge') {
             testImplementation "maven.modrinth:better-combat:${target.betterCombat}-${target.loader}"
             testRuntimeOnly 'maven.modrinth:playeranimator:2.0.4+1.21.1-forge'
             testRuntimeOnly 'maven.modrinth:cloth-config:15.0.140+neoforge'
         }
     }
 
-    if (personalSync && target.loader != 'forge') {
+    if (project.name in testedTargets && target.loader != 'forge') {
         sourceSets.test.java.srcDir rootProject.file('src/test/java')
         if (target.loader == 'neoforge') {
             sourceSets.test.java.srcDir rootProject.file('src/test-neoforge/java')

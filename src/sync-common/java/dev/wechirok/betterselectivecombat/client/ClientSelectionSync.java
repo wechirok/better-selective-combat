@@ -49,7 +49,7 @@ public final class ClientSelectionSync {
     private static boolean ignoreOffhand(ItemStack stack) {
         Minecraft minecraft = Minecraft.getInstance();
         return minecraft.isSameThread() && minecraft.player != null
-                && stack == minecraft.player.getInventory().offhand.get(0)
+                && stack == minecraft.player.getOffhandItem()
                 && BetterSelectiveCombatClient.shouldIgnore(SelectedItemAccess.get(minecraft));
     }
 }

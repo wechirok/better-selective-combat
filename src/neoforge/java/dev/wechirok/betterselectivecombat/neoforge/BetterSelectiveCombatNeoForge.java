@@ -2,6 +2,7 @@ package dev.wechirok.betterselectivecombat.neoforge;
 
 import dev.wechirok.betterselectivecombat.BetterSelectiveCombat;
 import dev.wechirok.betterselectivecombat.command.BscCommands;
+import dev.wechirok.betterselectivecombat.network.NeoForgeCombatNetworking;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.loading.FMLPaths;
@@ -12,8 +13,10 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 public final class BetterSelectiveCombatNeoForge {
     public BetterSelectiveCombatNeoForge(IEventBus modEventBus) {
         BetterSelectiveCombat.initialize(FMLPaths.CONFIGDIR.get());
+        NeoForgeCombatNetworking.initialize(modEventBus);
         if (NeoForgeEnvironment.isClient()) {
             BetterSelectiveCombatNeoForgeClient.initialize(modEventBus);
+            NeoForgeCombatNetworking.initializeClient();
         }
         NeoForge.EVENT_BUS.addListener(this::registerCommands);
     }

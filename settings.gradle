@@ -37,7 +37,7 @@ def targets = [
 }
 
 def selected = providers.gradleProperty('targets').map { it.split(',').toList() }
-        .orElse(['mc1201-fabric', 'mc1201-forge', 'mc1211-fabric', 'mc1211-neoforge']).get()
+        .orElse(targets.keySet().toList()).get()
 targets.findAll { name, directory -> selected == null || name in selected }.each { name, directory ->
     if (name == 'mc1202-forge') {
         return

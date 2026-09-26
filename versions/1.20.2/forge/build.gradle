@@ -17,7 +17,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.spongepowered.mixin'
 
 group = 'dev.wechirok.betterselectivecombat'
-version = '1.1.0'
+version = '1.2.1'
 
 base {
     archivesName = 'betterselectivecombat-forge'
@@ -46,7 +46,11 @@ sourceSets {
                 '../../../src/minecraft-text-modern/java',
                 '../../../src/minecraft-registry-modern/java',
                 '../../../src/minecraft-command-modern/java',
-                '../../../src/minecraft-language-modern/java'
+                '../../../src/minecraft-language-modern/java',
+                '../../../src/sync-common/java',
+                '../../../src/sync-player-legacy/java',
+                '../../../src/sync-forge-1202/java',
+                '../../../src/sync-forge-mixin/java'
         ]
         resources.srcDirs = ['../../../src/common/resources', '../../../src/forge/resources']
     }
@@ -74,7 +78,8 @@ def resourceProperties = [
         better_combat_range: '[1.6.2,2.0.0)', java_compatibility: 'JAVA_17',
         fabric_api_id: 'fabric-api', fabric_entrypoint: 'BetterSelectiveCombatFabric',
         legacy_mixins: '', refmap: '"refmap": "better_selective_combat.refmap.json",', pack_format: 18,
-        sync_mixins: '', sync_client_mixins: ''
+        sync_mixins: ', "WeaponRegistryPreferenceMixin"',
+        sync_client_mixins: ', "client.CombatSelectionClientMixin"'
 ]
 
 processResources {

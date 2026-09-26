@@ -23,7 +23,7 @@ public final class CombatSelectionState {
     }
 
     public static void accept(ServerPlayer player, CombatSelection selection) {
-        MinecraftServer currentServer = player.getServer();
+        MinecraftServer currentServer = SelectionPlayerAccess.server(player);
         if (currentServer == null || !currentServer.isSameThread()) {
             throw new IllegalStateException("Combat selection must be updated on the server thread");
         }
@@ -57,9 +57,8 @@ public final class CombatSelectionState {
             if (player == null) {
                 continue;
             }
-            var inventory = player.getInventory();
-            ItemStack mainHand = inventory.getSelected();
-            if (stack == mainHand || stack == inventory.offhand.get(0)) {
+            ItemStack mainHand = SelectionPlayerAccess.mainHand(player);
+            if (stack == mainHand || stack == SelectionPlayerAccess.offhand(player)) {
                 return entry.getValue().weaponId().equals(ItemIds.get(mainHand));
             }
         }
