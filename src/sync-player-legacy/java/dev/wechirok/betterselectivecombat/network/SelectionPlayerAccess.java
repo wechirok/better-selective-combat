@@ -2,6 +2,8 @@ package dev.wechirok.betterselectivecombat.network;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 public final class SelectionPlayerAccess {
@@ -16,7 +18,7 @@ public final class SelectionPlayerAccess {
         return player.getInventory().getSelected();
     }
 
-    public static ItemStack offhand(ServerPlayer player) {
-        return player.getOffhandItem();
+    public static ItemStack offhand(Player player) {
+        return player.getInventory().getItem(Inventory.SLOT_OFFHAND);
     }
 }

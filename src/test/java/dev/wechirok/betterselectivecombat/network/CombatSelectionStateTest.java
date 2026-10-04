@@ -70,6 +70,7 @@ class CombatSelectionStateTest {
         assertTrue(CombatSelectionState.shouldIgnore(main));
         assertTrue(CombatSelectionState.shouldIgnore(offhand));
         assertFalse(CombatSelectionState.shouldIgnore(mock(ItemStack.class)));
+        verify(player, never()).getOffhandItem();
     }
 
     @Test

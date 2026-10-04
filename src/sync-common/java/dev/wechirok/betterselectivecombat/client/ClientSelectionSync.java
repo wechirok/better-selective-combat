@@ -2,6 +2,7 @@ package dev.wechirok.betterselectivecombat.client;
 
 import dev.wechirok.betterselectivecombat.network.CombatSelection;
 import dev.wechirok.betterselectivecombat.network.CombatSelectionState;
+import dev.wechirok.betterselectivecombat.network.SelectionPlayerAccess;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.ItemStack;
 
@@ -49,7 +50,7 @@ public final class ClientSelectionSync {
     private static boolean ignoreOffhand(ItemStack stack) {
         Minecraft minecraft = Minecraft.getInstance();
         return minecraft.isSameThread() && minecraft.player != null
-                && stack == minecraft.player.getOffhandItem()
-                && BetterSelectiveCombatClient.shouldIgnore(SelectedItemAccess.get(minecraft));
+                && BetterSelectiveCombatClient.shouldIgnore(SelectedItemAccess.get(minecraft))
+                && stack == SelectionPlayerAccess.offhand(minecraft.player);
     }
 }
