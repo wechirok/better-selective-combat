@@ -8,7 +8,7 @@ plugins {
 }
 
 group = 'dev.wechirok.betterselectivecombat'
-version = '1.2.1'
+version = '1.2.2'
 
 def targets = [
         'mc1211-fabric'   : [loader: 'fabric', minecraft: '1.21.1', publishVersions: ['1.21.1'], minecraftRange: '=1.21.1', java: 21, fabricApi: '0.116.15+1.21.1', neoForge: null, betterCombat: '2.4.0+1.21.1', betterCombatRange: '>=2.4.0 <3.0.0'],
@@ -166,15 +166,16 @@ subprojects {
                         : target.loader == 'neoforge' && target.minecraft in ['1.21.8', '1.21.10']
                         ? 'src/sync-neoforge-1218/java'
                         : target.loader == 'neoforge' && (target.minecraft.startsWith('26.') || target.minecraft == '1.21.11')
-                        ? 'src/sync-neoforge-26/java' : "src/sync-${target.loader}/java")
+                        ? 'src/sync-neoforge-26/java'
+                        : target.loader == 'fabric' && target.minecraft.startsWith('26.')
+                        ? 'src/sync-fabric-26/java' : "src/sync-${target.loader}/java")
                 if (target.loader in ['forge', 'neoforge']) {
                     java.srcDir rootProject.file("src/sync-${target.loader}-mixin/java")
                 }
-                if (target.loader == 'fabric') {
+                if (target.loader == 'fabric' && !target.minecraft.startsWith('26.')) {
                     java.srcDir rootProject.file(target.legacy
                             ? 'src/sync-fabric-1.20.1/java'
-                            : target.minecraft.startsWith('26.')
-                            ? 'src/sync-fabric-26/java' : 'src/sync-fabric-1.21.1/java')
+                            : 'src/sync-fabric-1.21.1/java')
                 }
                 if (!target.legacy) {
                     java.srcDir rootProject.file(target.minecraft in ['1.21.11', '26.1.2', '26.2', '26.3']

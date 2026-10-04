@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.server.Bootstrap;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -115,5 +116,22 @@ class ClientSelectionSyncTest {
         minecraft.player = null;
         ClientSelectionSync.synchronize();
         assertTrue(sent.isEmpty());
+    }
+
+    @Test
+    void offhandFilterReadsInventoryWithoutReenteringBetterCombat() {
+        Inventory playerInventory = new Inventory(minecraft.player);
+        ItemStack offhand = mock(ItemStack.class);
+        playerInventory.offhand.set(0, offhand);
+        when(minecraft.player.getInventory()).thenReturn(playerInventory);
+        when(minecraft.isSameThread()).thenReturn(true);
+        when(minecraft.player.getOffhandItem()).thenThrow(new AssertionError("Recursive equipment getter"));
+        preferences.when(() -> BetterSelectiveCombatClient.shouldIgnore(weapon)).thenReturn(true);
+
+        assertTrue(CombatSelectionState.shouldIgnore(offhand));
+        assertFalse(CombatSelectionState.shouldIgnore(mock(ItemStack.class)));
+        preferences.when(() -> BetterSelectiveCombatClient.shouldIgnore(weapon)).thenReturn(false);
+        assertFalse(CombatSelectionState.shouldIgnore(offhand));
+        verify(minecraft.player, never()).getOffhandItem();
     }
 }
