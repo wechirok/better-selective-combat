@@ -10,6 +10,11 @@ Lets you choose which weapons should bypass Better Combat and use their original
 
 You can rebind both keys in the Controls settings.
 
+### Available on
+
+[![MODRINTH](https://img.shields.io/badge/MODRINTH-00AF5C?style=for-the-badge&logo=modrinth&logoColor=white&labelColor=000000)](https://modrinth.com/mod/better-selective-combat)
+[![CURSEFORGE](https://img.shields.io/badge/CURSEFORGE-F16436?style=for-the-badge&logo=curseforge&logoColor=white&labelColor=000000)](https://www.curseforge.com/minecraft/mc-mods/better-selective-combat)
+
 </div>
 
 ## Multiplayer commands
